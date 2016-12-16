@@ -5,14 +5,30 @@
         <title>Super Six Cricket</title>
 
         <script src="phaser.min.js" charset="utf-8"></script>
-        <script src="custom.js" charset="utf-8"></script>
-        <script src="preload.js" charset="utf-8"></script>
-        <script src="create.js" charset="utf-8"></script>
-        <script src="update.js" charset="utf-8"></script>
-        <script src="cricket.js" charset="utf-8"></script>
-        
+        <script src="states/boot.js" charset="utf-8"></script>
+        <script src="states/preload.js" charset="utf-8"></script>
+        <script src="states/menu.js" charset="utf-8"></script>
+
     </head>
     <body>
+
+        <div>
+
+            <script>
+
+                var cricket = new Phaser.Game(640, 320, Phaser.CANVAS, '');
+
+                // adding states
+                cricket.state.add('boot', game.boot);
+                cricket.state.add('preload', game.preload);
+                cricket.state.add('menu', game.menu);
+
+                // starting boot state
+                cricket.state.start('boot');
+
+            </script>
+
+        </div>
 
     </body>
 </html>

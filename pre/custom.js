@@ -61,7 +61,7 @@ function off_shot()
 function leg_shot()
 {
 
-    legShot.play('leg');
+    legShot.play();
 }
 
 function checkHit()

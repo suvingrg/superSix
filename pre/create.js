@@ -110,12 +110,23 @@ function create() {
     // ******************************************************************
     // bat
 
-    bat = cricket.add.sprite(minX + 130, minY + 30, 'straight', 1);
-    bat.scale.setTo(0.09, 0.07);
-    bat.anchor.setTo(0.5);
-    straightShot = bat.animations.add('straight', '', 10);
-    offShot = bat.animations.add('off', '', 10);
-    legShot = bat.animations.add('leg', '', 10);
+    // straight
+    straightBat = cricket.add.sprite(minX + 130, minY + 30, 'straight', 1);
+    straightBat.scale.setTo(0.09, 0.07);
+    straightBat.anchor.setTo(0.5);
+    straightShot = straightBat.animations.add('straight', '', 10);
+
+    // off
+    offBat = cricket.add.sprite(minX + 150, minY + 50, 'off', 1);
+    offBat.scale.setTo(0.09, 0.07);
+    offBat.anchor.setTo(0.5);
+    offShot = offBat.animations.add('off', '', 10);
+
+    // leg
+    legBat = cricket.add.sprite(minX + 100, minY, 'leg', 1);
+    legBat.scale.setTo(0.09, 0.07);
+    legBat.anchor.setTo(0.5);
+    legShot = legBat.animations.add('leg', '', 10);
 
     cricket.physics.arcade.enable([drop, stump1, stump2, stump3, bell1, bell2]);
     // ball.body.velocity = 0;

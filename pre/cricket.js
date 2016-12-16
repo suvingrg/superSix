@@ -1,4 +1,4 @@
-var cricket = new Phaser.Game(640, 320, Phaser.CANVAS, '', {preload : preload, create : create, update: update, render: render});
+
 
 
 
