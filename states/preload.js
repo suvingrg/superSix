@@ -14,6 +14,7 @@ game.preload.prototype = {
         // setting up loading screen
         this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY, 'preloadBar');
         this.preloadBar.anchor.setTo(0.5, 0.5);
+        this.preloadBar.scale.setTo(0.5, 0.5);
 
 
         //	This sets the preloadBar sprite as a loader sprite.
