@@ -160,9 +160,9 @@ game.match.prototype = {
 
         // bat animations
         // straight shot
-        this.straightShot = this.bat.animations.add('straight', [0, 1, 2, 3, 4, 5], 10);
+        this.straightShot = this.bat.animations.add('straight', [0, 1, 2, 3, 4, 5], 20);
         // off shot
-        this.offShot = this.bat.animations.add('off', [0, 1, 2, 6, 7, 8, 9, 10], 10);
+        this.offShot = this.bat.animations.add('off', [0, 1, 2, 6, 7, 8, 9, 10], 20);
         // leg shot
         this.legShot = this.bat.animations.add('leg', [0, 1, 2, 11, 12, 13, 14, 15, 16, 17, 18], 25);
 
@@ -205,7 +205,7 @@ game.match.prototype = {
                 console.log(this.turnX, this.turnY);
             }
             this.ball_velocity = Math.random() * (200 - 150) + 150;
-            this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, this.ball_velocity);
+            this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, 100);
             console.log("ball_velocity = " + this.ball_velocity);
         }
 
@@ -284,23 +284,26 @@ game.match.prototype = {
         this.ballThrown = true;
 
         this.physics.arcade.enable(this.ball);
-        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, 180);
+        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, 70);
 
     },
 
     // function to play straight shot
     straight_shot: function () {
         this.straightShot.play();
+        this.shot_played = 'straight';
     },
 
     // function to play off shot
     off_shot: function () {
         this.offShot.play();
+        this.shot_played = 'off';
     },
 
     // function to play leg shot
     leg_shot: function () {
         this.legShot.play();
+        this.shot_played = 'leg';
     },
 
     chooseRect: function () {
@@ -327,7 +330,7 @@ game.match.prototype = {
 
     getRandomY: function (value) {
         if (value == 1) {
-            return Math.random() * (this.leftRectMaxX - this.leftRectMinY) + this.leftRectMinY;
+            return Math.random() * (this.leftRectMaxY - this.leftRectMinY) + this.leftRectMinY;
         } else if (value == 2) {
             return Math.random() * (this.midRectMaxY - this.midRectMinY) + this.midRectMinY;
         } else if (value == 3) {
@@ -340,9 +343,29 @@ game.match.prototype = {
 
         this.ball.rotation -= 1;
 
-        if (this.physics.arcade.collide(this.bat, this.ball) && this.shot_played == 'straight') {
+        if (this.physics.arcade.collide(this.bat, this.ball)) {
 
-            this.physics.arcade.moveToXY(this.ball, Math.random() * (max - min) + min, Math.random() * (max - min) + min, 700);
+            if (this.shot_played == 'straight') {
+
+                this.physics.arcade.moveToXY(this.ball, Math.random() * (420 - 220) + 220, 320, 700);
+                console.log('straight');
+
+            } else if (this.shot_played == 'off') {
+
+                this.physics.arcade.moveToXY(this.ball, 0, Math.random() * (230 - 90) + 90, 700);
+                console.log('off');
+
+            } else if (this.shot_played == 'leg') {
+
+                this.physics.arcade.moveToXY(this.ball, 640, Math.random() * (230 - 90) + 90, 700);
+                console.log('leg');
+
+            } else {
+
+                this.ball.body.velocity = 0;
+
+            }
+
 
         }
 
