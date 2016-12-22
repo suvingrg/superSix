@@ -25,14 +25,13 @@ game.match = function (cricket) {
         randomX, randomY, turnX, turnY,
         random_value,
         ball_velocity,
+        shot_played,
 
         // bat and animations
         bat, straightShot, offShot, legShot,
 
         //buttons
         bowl_btn, straight_btn, off_btn, leg_btn;
-
-    var cursors, play_btn;
 
 };
 
@@ -42,10 +41,7 @@ game.match.prototype = {
     create: function () {
 
         // setting world bounds so that we can move the camera
-        this.world.setBounds(0, 0, 1000, 1000);
-
-        // setting up game camera in the middle of the ground
-        this.camera.setPosition(this.world.centerX - 320, this.world.centerY - 135);
+        this.world.setBounds(0, 0, 640, 320);
 
         // ******************************************************************************************************
         // adding objects
@@ -62,7 +58,8 @@ game.match.prototype = {
         // pitch
         // ******************************************************************************************************
         this.pitch = this.add.image(this.world.centerX, this.world.centerY + 80, 'pitch');
-        this.pitch.anchor.setTo(0.5, 0.5);
+        this.pitch.anchor.setTo(0.5);
+        this.pitch.scale.setTo(1, 0.9);
 
         // ******************************************************************************************************
         // math
@@ -186,10 +183,6 @@ game.match.prototype = {
         // this.physics.arcade.enable([this.bat, this.drop, this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
         this.physics.arcade.enable([this.drop]);
 
-        // ******************************************************************************************************
-        // for testing purposes
-        this.cursors = this.input.keyboard.createCursorKeys();
-
     },
 
     update: function () {
@@ -201,12 +194,15 @@ game.match.prototype = {
             if (this.chosenRect == 'left') {
                 this.turnX = this.getRandomX(1);
                 this.turnY = this.getRandomY(1);
+                console.log(this.turnX, this.turnY);
             } else if (this.chosenRect == 'mid') {
                 this.turnX = this.getRandomX(2);
                 this.turnY = this.getRandomY(2);
+                console.log(this.turnX, this.turnY);
             } else if (this.chosenRect == 'right') {
                 this.turnX = this.getRandomX(3);
                 this.turnY = this.getRandomY(3);
+                console.log(this.turnX, this.turnY);
             }
             this.ball_velocity = Math.random() * (200 - 150) + 150;
             this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, this.ball_velocity);
@@ -217,27 +213,32 @@ game.match.prototype = {
             this.checkHit();
         }
 
-        if (this.physics.arcade.collide(this.bat, this.ball)) {
-            this.ball.body.velocity = 0;
-        }
 
-        // ******************************************************************************************************
-        // for testing purposes
-
-        if (this.cursors.left.isDown)
-        {
-          this.camera.x -= 10;
-        }
-        else if (this.cursors.right.isDown)
-        {
-          this.camera.x += 10;
-        }
-        else if (this.cursors.up.isDown) {
-          this.camera.y -= 10;
-        }
-        else if (this.cursors.down.isDown) {
-          this.camera.y += 10;
-        }
+        //
+        // if (this.physics.arcade.collide(this.ball, this.leftStump)) {
+        //     this.ball.rotation = 0;
+        //     this.ball.body.velocity = 0;
+        //     this.leftStump.body.velocity = 0;
+        //     this.midStump.body.velocity = 0;
+        //     this.rightStump.body.velocity = 0;
+        //     this.leftStump.rotation = -0.2;
+        // } else if (this.physics.arcade.collide(this.ball, this.midStump) || cricket.physics.arcade.collide(this.ball, this.rightStump)) {
+        //     this.ball.rotation = 0;
+        //     this.ball.body.velocity = 0;
+        //     this.leftStump.body.velocity = 0;
+        //     this.midStump.body.velocity = 0;
+        //     this.rightStump.body.velocity = 0;
+        //     this.midStump.rotation = -0.1;
+        //     this.rightStump.rotation = +0.2;
+        // }
+        //
+        // if (this.physics.arcade.collide(this.leftStump, this.leftBell) || this.physics.arcade.collide(this.midStump, this.leftBell)) {
+        //     this.leftBell.rotation = 1;
+        //     this.cricket.physics.arcade.moveToXY(this.leftBell, 300, 0, 200);
+        // } else if (this.physics.arcade.collide(this.midStump, this.rightBell) || this.physics.arcade.collide(this.rightStump, this.rightBell)) {
+        //     this.rightBell.rotation = 1;
+        //     this.cricket.physics.arcade.moveToXY(this.rightBell, 320, 0, 200);
+        // }
 
     },
 
@@ -283,7 +284,7 @@ game.match.prototype = {
         this.ballThrown = true;
 
         this.physics.arcade.enable(this.ball);
-        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, 500, 2000);
+        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, 180);
 
     },
 
@@ -336,7 +337,16 @@ game.match.prototype = {
 
     checkHit: function ()
     {
+
         this.ball.rotation -= 1;
+
+        if (this.physics.arcade.collide(this.bat, this.ball) && this.shot_played == 'straight') {
+
+            this.physics.arcade.moveToXY(this.ball, Math.random() * (max - min) + min, Math.random() * (max - min) + min, 700);
+
+        }
+
+
     }
 
 
