@@ -55,7 +55,7 @@ function create() {
     rect3maxY = minY - 90;
 
     rect3 = cricket.add.graphics(0, 0);
-    //    rect3.beginFill(0xd0f0f0, 0.7);
+    //  rect3.beginFill(0xd0f0f0, 0.7);
     rect3.drawRect(rect3minX, rect3minY, rect3maxX - rect3minX, rect3maxY);
     rect3.endFill();
 

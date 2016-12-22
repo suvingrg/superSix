@@ -1,0 +1,344 @@
+
+game.match = function (cricket) {
+
+    // variables declaration
+
+    var ground, pitch,
+
+        // wicket components
+        wicket, leftStump, midStump, rightStump, bowl_stump,
+        leftBell, rightBell, bell,
+
+        // ball
+        ball, drop, indicator, ballThrown = false,
+
+        // variables for math calculation
+        minX, minY, maxX, maxY,
+        section,
+        ball_drop_region,
+        leftRect, midRect, rightRect,
+        chosenRect,
+        leftRectMinX, leftRectMaxX, leftRectMinY, leftRectMaxY,
+        midRectMinX, midRectMaxX, midRectMinY, midRectMaxY,
+        rightRectMinX, rightRectMaxX, rightRectMinY, rightRectMaxY,
+        ballX, ballY,
+        randomX, randomY, turnX, turnY,
+        random_value,
+        ball_velocity,
+
+        // bat and animations
+        bat, straightShot, offShot, legShot,
+
+        //buttons
+        bowl_btn, straight_btn, off_btn, leg_btn;
+
+    var cursors, play_btn;
+
+};
+
+
+game.match.prototype = {
+
+    create: function () {
+
+        // setting world bounds so that we can move the camera
+        this.world.setBounds(0, 0, 1000, 1000);
+
+        // setting up game camera in the middle of the ground
+        this.camera.setPosition(this.world.centerX - 320, this.world.centerY - 135);
+
+        // ******************************************************************************************************
+        // adding objects
+        // ******************************************************************************************************
+
+        // ******************************************************************************************************
+        // ground
+        // ******************************************************************************************************
+        this.ground = this.add.tileSprite(0, 0, 640, 320, 'grass');
+        this.ground.fixedToCamera = true;
+        this.ground.alpha = 0.5;
+
+        // ******************************************************************************************************
+        // pitch
+        // ******************************************************************************************************
+        this.pitch = this.add.image(this.world.centerX, this.world.centerY + 80, 'pitch');
+        this.pitch.anchor.setTo(0.5, 0.5);
+
+        // ******************************************************************************************************
+        // math
+        // ******************************************************************************************************
+
+        this.minY = this.world.centerY - 24;
+        this.maxY = this.world.centerY + 50;
+        this.minX = this.world.centerX - 50;
+        this.maxX = this.world.centerX + 30;
+
+        this.section = (this.maxX - this.minX) / 3;
+
+        // ball drop region - rectangle in front of the batter
+        this.ball_drop_region = this.add.graphics(0, 0);
+        this.ball_drop_region.beginFill('0x000', 0.7);
+        this.ball_drop_region.drawRect(this.minX, this.minY, this.maxX - this.minX, this.maxY - this.minY);
+        this.ball_drop_region.endFill();
+
+        // left rect coordinates
+        this.leftRectMinX = this.minX;
+        this.leftRectMinY = 0;
+        this.leftRectMaxX = (this.maxX - this.minX) / 3 + this.minX;
+        this.leftRectMaxY = this.minY - 90;
+
+        // drawing left rect
+        this.leftRect = this.add.graphics(0, 0);
+        this.leftRect.beginFill(0x000000, 0.7);
+        this.leftRect.drawRect(this.leftRectMinX, this.leftRectMinY, this.leftRectMaxX - this.leftRectMinX, this.leftRectMaxY);
+        this.leftRect.endFill();
+
+        // mid rect coordinates
+        this.midRectMinX = this.leftRectMaxX;
+        this.midRectMinY = 0;
+        this.midRectMaxX = this.leftRectMaxX + this.section;
+        this.midRectMaxY = this.minY - 90;
+
+        // drawing mid rect
+        this.midRect = this.add.graphics(0, 0);
+        this.midRect.beginFill(0x00ff00, 0.7);
+        this.midRect.drawRect(this.midRectMinX, this.midRectMinY, this.midRectMaxX - this.midRectMinX, this.midRectMaxY);
+        this.midRect.endFill();
+
+        // right rect coordinates
+        this.rightRectMinX = this.midRectMaxX;
+        this.rightRectMinY = 0;
+        this.rightRectMaxX = this.maxX;
+        this.rightRectMaxY = this.minY - 90;
+
+        // drawing right rect
+        this.rightRect = this.add.graphics(0, 0);
+        this.rightRect.beginFill(0xd0f0f0, 0.7);
+        this.rightRect.drawRect(this.rightRectMinX, this.rightRectMinY, this.rightRectMaxX - this.rightRectMinX, this.rightRectMaxY);
+        this.rightRect.endFill();
+
+        // ball drop point
+        this.drop = this.add.sprite(300, 10, 'bell');
+        this.drop.scale.setTo(0.0001);
+
+        // indicator point
+        this.indicator = this.add.sprite(300, 10, 'bell');
+        this.indicator.scale.setTo(0.001);
+
+        // ******************************************************************************************************
+        // wickets
+        // ******************************************************************************************************
+
+        // this.leftStump = this.add.sprite(this.minX + 37, this.minY - 02, 'stump');
+        // this.leftStump.anchor.setTo(0.5);
+        //
+        // this.midStump = this.add.sprite(this.minX + 47, this.minY - 02, 'stump');
+        // this.midStump.anchor.setTo(0.5);
+        //
+        // this.rightStump = this.add.sprite(this.minX + 57, this.minY - 02, 'stump');
+        // this.rightStump.anchor.setTo(0.5);
+        //
+        // this.leftBell = this.add.sprite(this.minX + 39, this.minY - 55, 'bell');
+        // this.leftBell.anchor.setTo(0.5, 0.5);
+        //
+        // this.rightBell = this.add.sprite(this.minX + 50, this.minY - 55, 'bell');
+        // this.rightBell.anchor.setTo(0.5, 0.5);
+        //
+        //
+        // this.stump = this.add.image(this.minX + 30, this.minY + 155, 'stump');
+        // this.stump = this.add.image(this.minX + 42, this.minY + 155, 'stump');
+        // this.stump = this.add.image(this.minX + 54, this.minY + 155, 'stump');
+        //
+        // this.bell = this.add.image(this.minX + 32, this.minY + 153, 'bell');
+        // this.bell = this.add.image(this.minX + 45, this.minY + 153, 'bell');
+
+        // ******************************************************************************************************
+        // bat
+        // ******************************************************************************************************
+
+        this.bat = this.add.sprite(this.minX + 50, this.minY - 50, 'bat', 1);
+        this.bat.anchor.setTo(0.5);
+        this.physics.arcade.enable(this.bat);
+        this.bat.body.immovable = true;
+
+        // bat animations
+        // straight shot
+        this.straightShot = this.bat.animations.add('straight', [0, 1, 2, 3, 4, 5], 10);
+        // off shot
+        this.offShot = this.bat.animations.add('off', [0, 1, 2, 6, 7, 8, 9, 10], 10);
+        // leg shot
+        this.legShot = this.bat.animations.add('leg', [0, 1, 2, 11, 12, 13, 14, 15, 16, 17, 18], 25);
+
+        // ******************************************************************************************************
+        // buttons
+        // ******************************************************************************************************
+
+        bowl_btn = this.add.button(this.minX - 200, this.minY + 100, 'bowl_btn', this.bowling, this, 1, 0, 1, 0);
+
+        straight_btn = this.add.button(this.minX + 260, this.minY + 100, 'straight_btn', this.straight_shot, this, 1, 0, 1, 0);
+
+        off_btn = this.add.button(this.minX + 200, this.minY + 45, 'off_btn', this.off_shot, this, 1, 0, 1, 0);
+
+        leg_btn = this.add.button(this.minX + 320, this.minY + 45, 'leg_btn', this.leg_shot, this, 1, 0, 1, 0);
+
+
+        // enabling physics on objects
+        // this.physics.arcade.enable([this.bat, this.drop, this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
+        this.physics.arcade.enable([this.drop]);
+
+        // ******************************************************************************************************
+        // for testing purposes
+        this.cursors = this.input.keyboard.createCursorKeys();
+
+    },
+
+    update: function () {
+
+        // ball drop and velocity change
+        if (this.physics.arcade.collide(this.ball, this.drop)) {
+
+            this.chosenRect = this.chooseRect();
+            if (this.chosenRect == 'left') {
+                this.turnX = this.getRandomX(1);
+                this.turnY = this.getRandomY(1);
+            } else if (this.chosenRect == 'mid') {
+                this.turnX = this.getRandomX(2);
+                this.turnY = this.getRandomY(2);
+            } else if (this.chosenRect == 'right') {
+                this.turnX = this.getRandomX(3);
+                this.turnY = this.getRandomY(3);
+            }
+            this.ball_velocity = Math.random() * (200 - 150) + 150;
+            this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, this.ball_velocity);
+            console.log("ball_velocity = " + this.ball_velocity);
+        }
+
+        if (this.ballThrown === true) {
+            this.checkHit();
+        }
+
+        if (this.physics.arcade.collide(this.bat, this.ball)) {
+            this.ball.body.velocity = 0;
+        }
+
+        // ******************************************************************************************************
+        // for testing purposes
+
+        if (this.cursors.left.isDown)
+        {
+          this.camera.x -= 10;
+        }
+        else if (this.cursors.right.isDown)
+        {
+          this.camera.x += 10;
+        }
+        else if (this.cursors.up.isDown) {
+          this.camera.y -= 10;
+        }
+        else if (this.cursors.down.isDown) {
+          this.camera.y += 10;
+        }
+
+    },
+
+    render: function () {
+        cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
+        cricket.debug.spriteBounds(this.bat);
+        cricket.debug.cameraInfo(this.camera, 30, 150, '#f00');
+    },
+
+
+    // custom functions
+
+    //
+    setBallPositionX: function () {
+
+        this.ballX = Math.random() * (this.maxX - this.minX) + this.minX;
+        return this.ballX;
+
+    },
+
+    //
+    setBallPositionY: function () {
+
+        this.ballY = Math.random() * (this.maxY - this.minY) + this.minY;
+        return this.ballY;
+
+    },
+
+    // function for start bowling
+    bowling: function () {
+
+        this.randomX = this.setBallPositionX();
+        this.randomY = this.setBallPositionY();
+
+        this.drop.x = this.randomX;
+        this.drop.y = this.randomY;
+        this.indicator.x = this.randomX;
+        this.indicator.y = this.randomY;
+
+        // ball is added to game
+        this.ball = this.add.sprite(this.world.centerX - 50, this.world.centerY + 130, 'ball');
+        this.ball.anchor.setTo(0.5);
+        this.ballThrown = true;
+
+        this.physics.arcade.enable(this.ball);
+        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, 500, 2000);
+
+    },
+
+    // function to play straight shot
+    straight_shot: function () {
+        this.straightShot.play();
+    },
+
+    // function to play off shot
+    off_shot: function () {
+        this.offShot.play();
+    },
+
+    // function to play leg shot
+    leg_shot: function () {
+        this.legShot.play();
+    },
+
+    chooseRect: function () {
+        this.random_value = Math.random();
+        if (this.random_value <= 0.334) {
+            return 'left';
+        } else if (this.random_value > 0.334 && this.random_value <= 0.667) {
+            return 'mid';
+        } else {
+            return 'right';
+        }
+
+    },
+
+    getRandomX: function (value) {
+        if (value == 1) {
+            return Math.random() * (this.leftRectMaxX - this.leftRectMinX) + this.leftRectMinX;
+        } else if (value == 2) {
+            return Math.random() * (this.midRectMaxX - this.midRectMinX) + this.midRectMinX;
+        } else if (value == 3) {
+            return Math.random() * (this.rightRectMaxX - this.rightRectMinX) + this.rightRectMinX;
+        }
+    },
+
+    getRandomY: function (value) {
+        if (value == 1) {
+            return Math.random() * (this.leftRectMaxX - this.leftRectMinY) + this.leftRectMinY;
+        } else if (value == 2) {
+            return Math.random() * (this.midRectMaxY - this.midRectMinY) + this.midRectMinY;
+        } else if (value == 3) {
+            return Math.random() * (this.rightRectMaxY - this.rightRectMinY) + this.rightRectMinY;
+        }
+    },
+
+    checkHit: function ()
+    {
+        this.ball.rotation -= 1;
+    }
+
+
+
+};

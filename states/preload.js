@@ -1,6 +1,9 @@
 
 game.preload = function (cricket) {
+
+    // variables declaration
     var preloadBar;
+
 };
 
 
@@ -14,7 +17,6 @@ game.preload.prototype = {
         // setting up loading screen
         this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY, 'preloadBar');
         this.preloadBar.anchor.setTo(0.5, 0.5);
-        this.preloadBar.scale.setTo(0.5, 0.5);
 
 
         //	This sets the preloadBar sprite as a loader sprite.
@@ -33,18 +35,17 @@ game.preload.prototype = {
         this.load.image('ball', 'assets/ball.png');
 
         // buttons
-        this.load.spritesheet('play_btn', 'assets/play_btn.png', 167, 70);
-        this.load.spritesheet('bowl_btn', 'assets/bowl.png', 1105, 1105);
-        this.load.spritesheet('straight_btn', 'assets/straight_btn.png', 1105, 1105);
-        this.load.spritesheet('off_btn', 'assets/off_btn.png', 1105, 1105);
-        this.load.spritesheet('leg_btn', 'assets/leg_btn.png', 1105, 1105);
+        this.load.spritesheet('play_btn', 'assets/play_btn.png', 167, 70, 2);
+        this.load.spritesheet('bowl_btn', 'assets/bowl.png', 50, 50, 2);
+        this.load.spritesheet('straight_btn', 'assets/straight_btn.png', 50, 50, 2);
+        this.load.spritesheet('off_btn', 'assets/off_btn.png', 50, 50, 2);
+        this.load.spritesheet('leg_btn', 'assets/leg_btn.png', 50, 50, 2);
 
         // animations
-        this.load.spritesheet('board', 'assets/board.png', 1004, 687);
-        this.load.atlasJSONArray('bowler', 'assets/bowler.png', 'assets/bowler.json');
-        this.load.spritesheet('straight', 'assets/straight.png', 2000, 2000);
-        this.load.spritesheet('off', 'assets/off.png', 2000, 2000);
-        this.load.spritesheet('leg', 'assets/leg.png', 2000, 2000);
+        // scoreboard
+        this.load.spritesheet('board', 'assets/board.png', 1004, 687, 2);
+        // bat and shot animations
+        this.load.atlasJSONArray('bat', 'assets/bat.png', 'assets/bat.json', '');
 
     },
 

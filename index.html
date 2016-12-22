@@ -8,6 +8,7 @@
         <script src="states/boot.js" charset="utf-8"></script>
         <script src="states/preload.js" charset="utf-8"></script>
         <script src="states/menu.js" charset="utf-8"></script>
+        <script src="states/match.js" charset="utf-8"></script>
 
     </head>
     <body>
@@ -22,6 +23,7 @@
                 cricket.state.add('boot', game.boot);
                 cricket.state.add('preload', game.preload);
                 cricket.state.add('menu', game.menu);
+                cricket.state.add('match', game.match);
 
                 // starting boot state
                 cricket.state.start('boot');
