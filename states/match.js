@@ -653,7 +653,6 @@ game.match.prototype = {
         this.overs_left_text.setText('BALLS LEFT - ' + this.overs_left);  
     },
 
-    new_session: function () {
         
 
         this.stadium.visible = false;
