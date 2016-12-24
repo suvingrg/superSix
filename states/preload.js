@@ -27,12 +27,17 @@ game.preload.prototype = {
         // background
         this.load.image('menubg', 'assets/menubg.jpg');
 
+        // font
+        this.load.bitmapFont('digital', 'assets/font/digital.png', 'assets/font/digital.fnt');
+
         // objects
         this.load.image('grass', 'assets/grass.png');
         this.load.image('pitch', 'assets/pitch.png');
         this.load.image('stump', 'assets/stump.png');
         this.load.image('bell', 'assets/bell.png');
         this.load.image('ball', 'assets/ball.png');
+        this.load.image('stadium', 'assets/stadium.png');
+        this.load.image('scoreboard', 'assets/scoreboard.png');
 
         // buttons
         this.load.spritesheet('play_btn', 'assets/play_btn.png', 167, 70, 2);

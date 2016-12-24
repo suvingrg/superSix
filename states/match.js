@@ -27,8 +27,19 @@ game.match = function (cricket) {
         ball_velocity,
         shot_played,
 
+        // scoring
+        stadium, hit_ball, hit_ball_velocity, hit_ball_point, hit_ball_shot, hit_ball_destination,
+
+        // scoring animations
+        scoreboard, run_text, run_text_score, run_scored,
+
         // bat and animations
         bat, straightShot, offShot, legShot,
+
+        // scores
+        score_box_group,
+        score_box, total_runs, target_runs, overs_played,
+
 
         //buttons
         bowl_btn, straight_btn, off_btn, leg_btn;
@@ -120,7 +131,7 @@ game.match.prototype = {
 
         // indicator point
         this.indicator = this.add.sprite(300, 10, 'bell');
-        this.indicator.scale.setTo(0.001);
+        this.indicator.scale.setTo(0.1);
 
         // ******************************************************************************************************
         // wickets
@@ -128,6 +139,7 @@ game.match.prototype = {
 
         // this.leftStump = this.add.sprite(this.minX + 37, this.minY - 02, 'stump');
         // this.leftStump.anchor.setTo(0.5);
+
         //
         // this.midStump = this.add.sprite(this.minX + 47, this.minY - 02, 'stump');
         // this.midStump.anchor.setTo(0.5);
@@ -180,8 +192,22 @@ game.match.prototype = {
 
 
         // enabling physics on objects
-        // this.physics.arcade.enable([this.bat, this.drop, this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
+        // this.physics.arcade.enable([this.drop, this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
         this.physics.arcade.enable([this.drop]);
+
+        // ******************************************************************************************************
+        // scoring
+        // ******************************************************************************************************
+        
+        // stadium - for showing the ball trajectory after being hit by the bat
+        this.stadium = this.add.image(this.world.centerX, this.world.centerY, 'stadium');
+        this.stadium.anchor.setTo(0.5);
+        this.stadium.scale.setTo(1.5, 1);
+        this.stadium.visible = false;
+
+        // score box group
+
+        
 
     },
 
@@ -192,26 +218,192 @@ game.match.prototype = {
 
             this.chosenRect = this.chooseRect();
             if (this.chosenRect == 'left') {
+                
                 this.turnX = this.getRandomX(1);
                 this.turnY = this.getRandomY(1);
-                console.log(this.turnX, this.turnY);
+                
             } else if (this.chosenRect == 'mid') {
+                
                 this.turnX = this.getRandomX(2);
                 this.turnY = this.getRandomY(2);
-                console.log(this.turnX, this.turnY);
+                
             } else if (this.chosenRect == 'right') {
+                
                 this.turnX = this.getRandomX(3);
                 this.turnY = this.getRandomY(3);
-                console.log(this.turnX, this.turnY);
+                
             }
-            this.ball_velocity = Math.random() * (200 - 150) + 150;
-            this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, 100);
-            console.log("ball_velocity = " + this.ball_velocity);
+
+            this.ball_velocity = Math.random() * (270 - 170) + 170;
+            this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, this.ball_velocity);
+            // console.log("ball_velocity = " + this.ball_velocity);
         }
 
         if (this.ballThrown === true) {
-            this.checkHit();
+
+            this.checkHit(this.ball_velocity);
+
+            if (this.hit_ball === true) {
+
+                if (!this.ball.inCamera) {
+
+                    this.ball.destroy();
+                    this.stadium.visible = true;
+
+                    this.hit_ball = this.add.sprite(this.world.centerX - 7, this.world.centerY - 25, 'ball');
+                    this.hit_ball.anchor.setTo(0.5);
+                    this.hit_ball_destination = this.add.sprite(0, 0, 'bell');
+                    this.hit_ball_destination.scale.setTo(0.0001);
+                    this.hit_ball_destination.anchor.setTo(0.5);
+                    this.physics.arcade.enable([this.hit_ball, this.hit_ball_destination]);
+
+                    // this.hit_ball_velocity = 610;
+                    console.log('hit_ball_velocity = ' + this.hit_ball_velocity);
+
+                    if (this.hit_ball_shot == 'straight') {
+
+
+                        if (this.hit_ball_velocity >= 500 && this.hit_ball_velocity < 580) {
+
+                            this.hit_ball_destination.x = this.hit_ball_point;
+                            this.hit_ball_destination.y = this.world.centerY + 60;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.hit_ball_point, this.world.centerY + 60, 50);
+                            this.run_scored = 1;
+
+                        } else if (this.hit_ball_velocity >= 580 && this.hit_ball_velocity < 640) {
+
+                            this.hit_ball_destination.x = this.hit_ball_point;
+                            this.hit_ball_destination.y = this.world.centerY + 120;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.hit_ball_point, this.world.centerY + 120, 60);
+                            this.run_scored = 2;
+                            
+
+                        } else if (this.hit_ball_velocity >= 640 && this.hit_ball_velocity < 700) {
+
+                            this.hit_ball_destination.x = this.hit_ball_point;
+                            this.hit_ball_destination.y = 320;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.hit_ball_point, 320, 150);
+                            this.run_scored = 4;
+
+                        }
+
+
+                    } else if (this.hit_ball_shot == 'off') {
+
+                        if (this.hit_ball_velocity >= 500 && this.hit_ball_velocity < 560) {
+
+                            this.hit_ball_destination.x = this.world.centerX - 60;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.world.centerX - 60, this.hit_ball_point, 50);
+                            this.run_scored = 1;
+
+                        } else if (this.hit_ball_velocity >= 560 && this.hit_ball_velocity < 630) {
+
+                            this.hit_ball_destination.x = this.world.centerX - 120;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.world.centerX - 120, this.hit_ball_point, 60);
+                            this.run_scored = 2;
+
+                        } else if (this.hit_ball_velocity >= 630 && this.hit_ball_velocity < 640) {
+
+                            this.hit_ball_destination.x = this.world.centerX - 150;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.world.centerX - 150, this.hit_ball_point, 70);
+                            this.run_scored = 3;
+
+                        } else if (this.hit_ball_velocity >= 640 && this.hit_ball_velocity < 680) {
+
+                            this.hit_ball_destination.x = this.world.centerX - 260;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.world.centerX - 260, this.hit_ball_point, 200);
+                            this.run_scored = 4;
+
+                        } else if (this.hit_ball_velocity >= 680 && this.hit_ball_velocity < 700) {
+
+                            this.hit_ball_destination.x = 0;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, 0, this.hit_ball_point, 400);
+                            this.run_scored = 6;
+
+                        }
+
+
+                    } else if (this.hit_ball_shot == 'leg') {
+
+
+                        if (this.hit_ball_velocity >= 500 && this.hit_ball_velocity < 560) {
+
+                            this.hit_ball_destination.x = this.world.centerX + 60;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.world.centerX + 60, this.hit_ball_point, 50);
+                            this.run_scored = 1;
+
+                        } else if (this.hit_ball_velocity >= 560 && this.hit_ball_velocity < 630) {
+
+                            this.hit_ball_destination.x = this.world.centerX + 120;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.world.centerX + 120, this.hit_ball_point, 60);
+                            this.run_scored = 2;
+
+                        } else if (this.hit_ball_velocity >= 630 && this.hit_ball_velocity < 640) {
+
+                            this.hit_ball_destination.x = this.world.centerX + 150;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.world.centerX + 150, this.hit_ball_point, 70);
+                            this.run_scored = 3;
+
+                        } else if (this.hit_ball_velocity >= 640 && this.hit_ball_velocity < 680) {
+
+                            this.hit_ball_destination.x = this.world.centerX + 260;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, this.world.centerX + 260, this.hit_ball_point, 200);
+                            this.run_scored = 4;
+
+                        } else if (this.hit_ball_velocity >= 680 && this.hit_ball_velocity < 700) {
+
+                            this.hit_ball_destination.x = 640;
+                            this.hit_ball_destination.y = this.hit_ball_point;
+                            this.physics.arcade.moveToXY(this.hit_ball, 640, this.hit_ball_point, 400);
+                            this.run_scored = 6;
+
+                        }
+
+
+                    }
+
+                }
+
+            } else {
+                // TO DO
+                // in case the ball is not being hit
+
+
+            }
+
         }
+
+    
+        // after the ball is hit the collisio check will start        
+        if (typeof this.hit_ball !== 'undefined') {
+            // this block of code only runs when this.hit_ball variable is defined
+            
+
+            this.hit_ball.rotation -= 5;
+
+            if (this.physics.arcade.collide(this.hit_ball, this.hit_ball_destination)) {
+
+                this.hit_ball.body.velocity = 0;
+                this.hit_ball.rotation = 0;
+
+                this.run_scored_animation();
+
+
+
+            }
+
+
+        }
+
 
 
         //
@@ -234,16 +426,16 @@ game.match.prototype = {
         //
         // if (this.physics.arcade.collide(this.leftStump, this.leftBell) || this.physics.arcade.collide(this.midStump, this.leftBell)) {
         //     this.leftBell.rotation = 1;
-        //     this.cricket.physics.arcade.moveToXY(this.leftBell, 300, 0, 200);
+        //     this.physics.arcade.moveToXY(this.leftBell, 300, 0, 200);
         // } else if (this.physics.arcade.collide(this.midStump, this.rightBell) || this.physics.arcade.collide(this.rightStump, this.rightBell)) {
         //     this.rightBell.rotation = 1;
-        //     this.cricket.physics.arcade.moveToXY(this.rightBell, 320, 0, 200);
+        //     this.physics.arcade.moveToXY(this.rightBell, 320, 0, 200);
         // }
 
     },
 
     render: function () {
-        cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
+        // cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
         cricket.debug.spriteBounds(this.bat);
         cricket.debug.cameraInfo(this.camera, 30, 150, '#f00');
     },
@@ -284,7 +476,7 @@ game.match.prototype = {
         this.ballThrown = true;
 
         this.physics.arcade.enable(this.ball);
-        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, 70);
+        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, 150);
 
     },
 
@@ -338,27 +530,65 @@ game.match.prototype = {
         }
     },
 
-    checkHit: function ()
-    {
+    checkHit: function (){
 
         this.ball.rotation -= 1;
+
+        if (this.ball_velocity >= 170 && this.ball_velocity < 190) {
+
+            this.hit_ball_velocity = Math.random() * (540 - 500) + 500;
+
+        } else if (this.ball_velocity >= 190 && this.ball_velocity < 220) {
+
+            this.hit_ball_velocity = Math.random() * (580 - 540) + 540;
+
+        } else if (this.ball_velocity >= 220 && this.ball_velocity < 230) {
+
+            this.hit_ball_velocity = Math.random() * (620 - 580) + 580;
+
+        } else if (this.ball_velocity >= 230 && this.ball_velocity < 260) {
+
+            this.hit_ball_velocity = Math.random() * (660 - 620) + 620;
+
+        } else if (this.ball_velocity >= 260 && this.ball_velocity < 270) {
+
+            this.hit_ball_velocity = Math.random() * (700 - 660) + 660;
+
+        }
+
 
         if (this.physics.arcade.collide(this.bat, this.ball)) {
 
             if (this.shot_played == 'straight') {
 
-                this.physics.arcade.moveToXY(this.ball, Math.random() * (420 - 220) + 220, 320, 700);
+                this.hit_ball_point = Math.random() * (420 - 220) + 220;
+                this.physics.arcade.moveToXY(this.ball, this.hit_ball_point, 320, this.hit_ball_velocity);
                 console.log('straight');
+                this.hit_ball_shot = this.shot_played;
+                this.shot_played = '';
+                this.hit_ball = true;
+                console.log(this.shot_played);
+
 
             } else if (this.shot_played == 'off') {
 
-                this.physics.arcade.moveToXY(this.ball, 0, Math.random() * (230 - 90) + 90, 700);
+                this.hit_ball_point = Math.random() * (230 - 90) + 90;
+                this.physics.arcade.moveToXY(this.ball, 0, this.hit_ball_point, this.hit_ball_velocity);
                 console.log('off');
+                this.hit_ball_shot = this.shot_played;
+                this.shot_played = '';
+                this.hit_ball = true;
+                console.log(this.shot_played);
 
             } else if (this.shot_played == 'leg') {
 
-                this.physics.arcade.moveToXY(this.ball, 640, Math.random() * (230 - 90) + 90, 700);
+                this.hit_ball_point = Math.random() * (230 - 90) + 90;
+                this.physics.arcade.moveToXY(this.ball, 640, this.hit_ball_point, this.hit_ball_velocity);
                 console.log('leg');
+                this.hit_ball_shot = this.shot_played;
+                this.shot_played = '';
+                this.hit_ball = true;
+                console.log(this.shot_played);
 
             } else {
 
@@ -369,6 +599,32 @@ game.match.prototype = {
 
         }
 
+
+    },
+
+
+    run_scored_animation: function () {
+                                    
+        if (this.run_scored == 1) {
+            this.run_text_score = 'ONE';
+        } else if (this.run_scored == 2) {
+            this.run_text_score = 'TWO';
+        } else if (this.run_scored == 3) {
+            this.run_text_score = 'THREE';
+        } else if (this.run_scored == 4) {
+            this.run_text_score = 'FOUR';
+        } else if (this.run_scored == 6) {
+            this.run_text_score = 'SIX';
+        }
+        
+        this.scoreboard = this.add.image(this.world.centerX, this.world.centerY, 'scoreboard');
+        this.scoreboard.anchor.setTo(0.5);
+        this.scoreboard.scale.setTo(2, 2);
+
+        this.run_text = this.add.bitmapText(this.world.centerX, this.world.centerY, 'digital', this.run_text_score, 70);
+        this.run_text.anchor.setTo(0.5);
+
+        // this.physics.arcade.enable([this.scoreboard, this.run_text]);
 
     }
 
