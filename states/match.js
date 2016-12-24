@@ -653,6 +653,15 @@ game.match.prototype = {
         this.overs_left_text.setText('BALLS LEFT - ' + this.overs_left);  
     },
 
+    new_session: function () {
+        
+
+        this.stadium.visible = false;
+        this.scoreboard.destroy();
+        this.run_text.destroy();
+        this.hit_ball.destroy();
+
+    },
 
     }
 
