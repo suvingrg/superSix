@@ -10,7 +10,7 @@ game.match = function (cricket) {
         leftBell, rightBell, bell,
 
         // ball
-        ball, drop, indicator, ballThrown = false,
+        ball, drop, ballThrown,
 
         // variables for math calculation
         minX, minY, maxX, maxY,
@@ -21,11 +21,13 @@ game.match = function (cricket) {
         leftRectMinX, leftRectMaxX, leftRectMinY, leftRectMaxY,
         midRectMinX, midRectMaxX, midRectMinY, midRectMaxY,
         rightRectMinX, rightRectMaxX, rightRectMinY, rightRectMaxY,
+        
+        // bowling
         ballX, ballY,
         randomX, randomY, turnX, turnY,
         random_value,
         ball_velocity,
-        shot_played,
+        shot_played, ball_hit,
 
         // scoring
         stadium, hit_ball, hit_ball_velocity, hit_ball_point, hit_ball_shot, hit_ball_destination,
@@ -38,8 +40,12 @@ game.match = function (cricket) {
 
         // scores
         score_box_group,
-        score_box, total_runs, target_runs, overs_played,
-
+        score_box, player_text,
+        total_runs, total_runs_text,
+        fallen_wickets,
+        overs_left, overs_left_text,
+        target_runs, target_runs_text,
+        font_style,
 
         //buttons
         bowl_btn, straight_btn, off_btn, leg_btn;
@@ -53,6 +59,7 @@ game.match.prototype = {
 
         // setting world bounds so that we can move the camera
         this.world.setBounds(0, 0, 640, 320);
+        
 
         // ******************************************************************************************************
         // adding objects
@@ -129,10 +136,6 @@ game.match.prototype = {
         this.drop = this.add.sprite(300, 10, 'bell');
         this.drop.scale.setTo(0.0001);
 
-        // indicator point
-        this.indicator = this.add.sprite(300, 10, 'bell');
-        this.indicator.scale.setTo(0.1);
-
         // ******************************************************************************************************
         // wickets
         // ******************************************************************************************************
@@ -182,18 +185,20 @@ game.match.prototype = {
         // buttons
         // ******************************************************************************************************
 
-        bowl_btn = this.add.button(this.minX - 200, this.minY + 100, 'bowl_btn', this.bowling, this, 1, 0, 1, 0);
+        this.bowl_btn = this.add.button(this.minX - 200, this.minY + 100, 'bowl_btn', this.bowling, this, 1, 0, 1, 0);
 
-        straight_btn = this.add.button(this.minX + 260, this.minY + 100, 'straight_btn', this.straight_shot, this, 1, 0, 1, 0);
+        this.straight_btn = this.add.button(this.minX + 260, this.minY + 100, 'straight_btn', this.straight_shot, this, 1, 0, 1, 0);
 
-        off_btn = this.add.button(this.minX + 200, this.minY + 45, 'off_btn', this.off_shot, this, 1, 0, 1, 0);
+        this.off_btn = this.add.button(this.minX + 200, this.minY + 45, 'off_btn', this.off_shot, this, 1, 0, 1, 0);
 
-        leg_btn = this.add.button(this.minX + 320, this.minY + 45, 'leg_btn', this.leg_shot, this, 1, 0, 1, 0);
+        this.leg_btn = this.add.button(this.minX + 320, this.minY + 45, 'leg_btn', this.leg_shot, this, 1, 0, 1, 0);
 
 
         // enabling physics on objects
         // this.physics.arcade.enable([this.drop, this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
         this.physics.arcade.enable([this.drop]);
+
+
 
         // ******************************************************************************************************
         // scoring
@@ -206,6 +211,25 @@ game.match.prototype = {
         this.stadium.visible = false;
 
         // score box group
+        this.score_box_group = this.add.group();
+
+        // score box image
+        this.score_box = this.add.image(5, 5, 'score_box');
+        this.score_box.scale.setTo(3, 2);
+        this.score_box_group.add(this.score_box);
+
+        // intializing the random target_runs 
+        this.target_runs = Math.floor(Math.random() * (150 - 100 + 1)) + 100;
+        this.total_runs = 0;
+        this.fallen_wickets = 0;
+        this.overs_left = 36;
+        this.font_style = {font: '17px Arial', fill: '#ffffff', align: 'left'};
+
+        // score box text
+        this.player_text = this.add.text(14, 8, 'YOU', this.font_style, this.score_box_group);
+        this.total_runs_text = this.add.text(74, 8, this.total_runs + ' - ' + this.fallen_wickets, this.font_style, this.score_box_group);
+        this.overs_left_text = this.add.text(14, 32, 'BALLS LEFT - ' + this.overs_left, this.font_style, this.score_box_group);
+        this.target_runs_text = this.add.text(14, 56, 'TARGET - ' + this.target_runs, this.font_style, this.score_box_group);
 
         
 
@@ -216,23 +240,10 @@ game.match.prototype = {
         // ball drop and velocity change
         if (this.physics.arcade.collide(this.ball, this.drop)) {
 
-            this.chosenRect = this.chooseRect();
-            if (this.chosenRect == 'left') {
-                
-                this.turnX = this.getRandomX(1);
-                this.turnY = this.getRandomY(1);
-                
-            } else if (this.chosenRect == 'mid') {
-                
-                this.turnX = this.getRandomX(2);
-                this.turnY = this.getRandomY(2);
-                
-            } else if (this.chosenRect == 'right') {
-                
-                this.turnX = this.getRandomX(3);
-                this.turnY = this.getRandomY(3);
-                
-            }
+            this.chooseRect();
+
+            this.turnX = this.getRandomX();
+            this.turnY = this.getRandomY();
 
             this.ball_velocity = Math.random() * (270 - 170) + 170;
             this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, this.ball_velocity);
@@ -241,9 +252,9 @@ game.match.prototype = {
 
         if (this.ballThrown === true) {
 
-            this.checkHit(this.ball_velocity);
+            this.checkHit();
 
-            if (this.hit_ball === true) {
+            if (this.ball_hit === true) {
 
                 if (!this.ball.inCamera) {
 
@@ -397,6 +408,9 @@ game.match.prototype = {
 
                 this.run_scored_animation();
 
+                this.update_score_box();
+                
+                this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session, this);
 
 
             }
@@ -438,6 +452,7 @@ game.match.prototype = {
         // cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
         cricket.debug.spriteBounds(this.bat);
         cricket.debug.cameraInfo(this.camera, 30, 150, '#f00');
+        cricket.debug.text(this.time.fps || '--', 600, 20, "#f00", '22px Verdana');
     },
 
 
@@ -467,8 +482,6 @@ game.match.prototype = {
 
         this.drop.x = this.randomX;
         this.drop.y = this.randomY;
-        this.indicator.x = this.randomX;
-        this.indicator.y = this.randomY;
 
         // ball is added to game
         this.ball = this.add.sprite(this.world.centerX - 50, this.world.centerY + 130, 'ball');
@@ -501,36 +514,36 @@ game.match.prototype = {
     chooseRect: function () {
         this.random_value = Math.random();
         if (this.random_value <= 0.334) {
-            return 'left';
+            this.chosenRect = 'left';
         } else if (this.random_value > 0.334 && this.random_value <= 0.667) {
-            return 'mid';
+            this.chosenRect = 'mid';
         } else {
-            return 'right';
+            this.chosenRect = 'right';
         }
 
     },
 
-    getRandomX: function (value) {
-        if (value == 1) {
+    getRandomX: function () {
+        if (this.chosenRect == 'left') {
             return Math.random() * (this.leftRectMaxX - this.leftRectMinX) + this.leftRectMinX;
-        } else if (value == 2) {
+        } else if (this.chosenRect == 'mid') {
             return Math.random() * (this.midRectMaxX - this.midRectMinX) + this.midRectMinX;
-        } else if (value == 3) {
+        } else if (this.chosenRect == 'right') {
             return Math.random() * (this.rightRectMaxX - this.rightRectMinX) + this.rightRectMinX;
         }
     },
 
-    getRandomY: function (value) {
-        if (value == 1) {
+    getRandomY: function () {
+        if (this.chosenRect == 'left') {
             return Math.random() * (this.leftRectMaxY - this.leftRectMinY) + this.leftRectMinY;
-        } else if (value == 2) {
+        } else if (this.chosenRect == 'mid') {
             return Math.random() * (this.midRectMaxY - this.midRectMinY) + this.midRectMinY;
-        } else if (value == 3) {
+        } else if (this.chosenRect == 'right') {
             return Math.random() * (this.rightRectMaxY - this.rightRectMinY) + this.rightRectMinY;
         }
     },
 
-    checkHit: function (){
+    checkHit: function () {
 
         this.ball.rotation -= 1;
 
@@ -566,7 +579,7 @@ game.match.prototype = {
                 console.log('straight');
                 this.hit_ball_shot = this.shot_played;
                 this.shot_played = '';
-                this.hit_ball = true;
+                this.ball_hit = true;
                 console.log(this.shot_played);
 
 
@@ -577,7 +590,7 @@ game.match.prototype = {
                 console.log('off');
                 this.hit_ball_shot = this.shot_played;
                 this.shot_played = '';
-                this.hit_ball = true;
+                this.ball_hit = true;
                 console.log(this.shot_played);
 
             } else if (this.shot_played == 'leg') {
@@ -587,7 +600,7 @@ game.match.prototype = {
                 console.log('leg');
                 this.hit_ball_shot = this.shot_played;
                 this.shot_played = '';
-                this.hit_ball = true;
+                this.ball_hit = true;
                 console.log(this.shot_played);
 
             } else {
@@ -598,8 +611,6 @@ game.match.prototype = {
 
 
         }
-
-
     },
 
 
@@ -625,6 +636,23 @@ game.match.prototype = {
         this.run_text.anchor.setTo(0.5);
 
         // this.physics.arcade.enable([this.scoreboard, this.run_text]);
+    },
+
+    update_score_box: function () {
+        
+        this.total_runs += this.run_scored;
+        this.total_runs_text.setText(this.total_runs + ' - ' + this.fallen_wickets);
+
+        this.update_balls_left();
+
+    },
+
+    update_balls_left: function () {
+        
+        this.overs_left -= 1;
+        this.overs_left_text.setText('BALLS LEFT - ' + this.overs_left);  
+    },
+
 
     }
 

@@ -38,6 +38,7 @@ game.preload.prototype = {
         this.load.image('ball', 'assets/ball.png');
         this.load.image('stadium', 'assets/stadium.png');
         this.load.image('scoreboard', 'assets/scoreboard.png');
+        this.load.image('score_box', 'assets/score_box.png');
 
         // buttons
         this.load.spritesheet('play_btn', 'assets/play_btn.png', 167, 70, 2);
@@ -51,6 +52,10 @@ game.preload.prototype = {
         this.load.spritesheet('board', 'assets/board.png', 1004, 687, 2);
         // bat and shot animations
         this.load.atlasJSONArray('bat', 'assets/bat.png', 'assets/bat.json', '');
+
+
+        // debugging for fps
+        this.time.advancedTiming = true;
 
     },
 
