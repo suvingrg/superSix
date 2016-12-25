@@ -27,7 +27,7 @@ game.match = function (cricket) {
         randomX, randomY, turnX, turnY,
         random_value,
         ball_velocity,
-        shot_played, ball_hit,
+        shot_played,
 
         // scoring
         stadium, hit_ball, hit_ball_velocity, hit_ball_point, hit_ball_shot, hit_ball_destination,
@@ -254,7 +254,7 @@ game.match.prototype = {
 
             this.checkHit();
 
-            if (this.ball_hit === true) {
+            if (this.hit_ball === true) {
 
                 if (!this.ball.inCamera) {
 
@@ -579,7 +579,7 @@ game.match.prototype = {
                 console.log('straight');
                 this.hit_ball_shot = this.shot_played;
                 this.shot_played = '';
-                this.ball_hit = true;
+                this.hit_ball = true;
                 console.log(this.shot_played);
 
 
@@ -590,7 +590,7 @@ game.match.prototype = {
                 console.log('off');
                 this.hit_ball_shot = this.shot_played;
                 this.shot_played = '';
-                this.ball_hit = true;
+                this.hit_ball = true;
                 console.log(this.shot_played);
 
             } else if (this.shot_played == 'leg') {
@@ -600,7 +600,7 @@ game.match.prototype = {
                 console.log('leg');
                 this.hit_ball_shot = this.shot_played;
                 this.shot_played = '';
-                this.ball_hit = true;
+                this.hit_ball = true;
                 console.log(this.shot_played);
 
             } else {
