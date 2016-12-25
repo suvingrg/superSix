@@ -247,7 +247,7 @@ game.match.prototype = {
 
             this.ball_velocity = Math.random() * (270 - 170) + 170;
             this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, this.ball_velocity);
-            // console.log("ball_velocity = " + this.ball_velocity);
+            console.log("ball_velocity = " + this.ball_velocity);
         }
 
         if (this.ballThrown === true) {
@@ -259,6 +259,8 @@ game.match.prototype = {
                 if (!this.ball.inCamera) {
 
                     this.ball.destroy();
+                    this.ball = null;
+                    this.ballThrown = false;
                     this.stadium.visible = true;
 
                     this.hit_ball = this.add.sprite(this.world.centerX - 7, this.world.centerY - 25, 'ball');
@@ -387,14 +389,15 @@ game.match.prototype = {
             } else {
                 // TO DO
                 // in case the ball is not being hit
-
+                // this.run_scored = 0;
+                // this.run_scored_animation();
 
             }
 
         }
 
     
-        // after the ball is hit the collisio check will start        
+        // after the ball is hit the collision check will start        
         if (typeof this.hit_ball !== 'undefined') {
             // this block of code only runs when this.hit_ball variable is defined
             
@@ -490,6 +493,8 @@ game.match.prototype = {
 
         this.physics.arcade.enable(this.ball);
         this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, 150);
+
+        this.bowl_btn.visible = false;
 
     },
 
@@ -606,6 +611,7 @@ game.match.prototype = {
             } else {
 
                 this.ball.body.velocity = 0;
+                // TO DO
 
             }
 
@@ -616,7 +622,9 @@ game.match.prototype = {
 
     run_scored_animation: function () {
                                     
-        if (this.run_scored == 1) {
+        if (this.run_scored == 0) {
+            this.run_text_score = 'ZERO';
+        } else if (this.run_scored == 1) {
             this.run_text_score = 'ONE';
         } else if (this.run_scored == 2) {
             this.run_text_score = 'TWO';
@@ -635,7 +643,6 @@ game.match.prototype = {
         this.run_text = this.add.bitmapText(this.world.centerX, this.world.centerY, 'digital', this.run_text_score, 70);
         this.run_text.anchor.setTo(0.5);
 
-        // this.physics.arcade.enable([this.scoreboard, this.run_text]);
     },
 
     update_score_box: function () {
@@ -660,6 +667,20 @@ game.match.prototype = {
         this.scoreboard.destroy();
         this.run_text.destroy();
         this.hit_ball.destroy();
+
+    },
+
+    bowling_destroy: function () {
+    
+        // from bowling
+        this.ball.destroy();
+        this.randomX = null;
+        this.randomY = null;
+
+        // from update and chooseRect
+        this.chosenRect = null;
+        this.turnX = null;
+        this.turnY = null;
 
     }
 
