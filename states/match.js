@@ -438,6 +438,39 @@ game.match.prototype = {
 
         }
 
+
+        /**
+         * match winning and losing conditions
+         */
+        // if all wickets are down
+        if (this.fallen_wickets >= 6) {
+           
+            this.runs_check();
+
+        }
+
+        // if balls left is zero
+        if (this.overs_left <= 0) {
+
+            this.runs_check();
+
+        }
+
+        // total runs scored is greater than or equal to target runs
+        if (this.total_runs >= this.target_runs) {
+
+            this.scoreboard.visible = true;
+            this.run_text.visible = true;
+            this.run_text.text = 'YOU WIN';
+
+            // calling menu screen after 3 seconds
+            this.time.events.add(Phaser.Timer.SECOND * 3, function () {
+                this.state.start('menu');
+            }, this);
+
+        }
+
+
         //
         // if (this.physics.arcade.collide(this.ball, this.leftStump)) {
         //     this.ball.rotation = 0;
@@ -629,7 +662,6 @@ game.match.prototype = {
                 this.ballThrown = false;
 
                 this.run_scored = 0;
-                console.log('631');
                 this.run_scored_animation();
                 this.update_balls_left();
                 this.time.events.add(Phaser.Timer.SECOND * 3, function () {
@@ -644,7 +676,7 @@ game.match.prototype = {
 
 
     run_scored_animation: function () {
-        console.log('641');
+
         if (this.run_scored == 0) {
             this.run_text_score = 'ZERO';
         } else if (this.run_scored == 1) {
@@ -758,6 +790,29 @@ game.match.prototype = {
             this.off_btn.visible = false;
             this.leg_btn.visible = false;
         }
+    },
+
+    runs_check: function () {
+        console.log('796');
+        this.scoreboard.visible = true;
+        this.run_text.visible = true;
+        console.log(this.total_runs, this.target_runs);
+
+        if (this.total_runs === (this.target_runs - 1)) {
+
+            this.run_text.text = 'DRAW';
+                
+        } else {
+
+            this.run_text.text = 'YOU LOSE';
+
+        }
+        
+        // calling menu screen after 3 seconds
+        this.time.events.add(Phaser.Timer.SECOND * 3, function () {
+            this.state.start('menu');
+        }, this);
+
     }
 
 
