@@ -48,6 +48,7 @@ game.match = function (cricket) {
         font_style,
 
         //buttons
+        toggle_visibility,
         bowl_btn, straight_btn, off_btn, leg_btn;
 
 };
@@ -134,7 +135,7 @@ game.match.prototype = {
 
         // ball drop point
         this.drop = this.add.sprite(300, 10, 'ball');
-        this.drop.scale.setTo(0.1);
+        this.drop.scale.setTo(0.0001);
         this.physics.arcade.enable(this.drop);
 
         // ******************************************************************************************************
@@ -198,14 +199,6 @@ game.match.prototype = {
 
         // enabling physics on objects
         // this.physics.arcade.enable([this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
-
-        /**
-         * ball
-         */
-        this.ball = this.add.sprite(0, 0, 'ball');
-        this.ball.anchor.setTo(0.5);
-        this.physics.arcade.enable(this.ball);
-        this.ball.visible = false;
 
 
         // ******************************************************************************************************
@@ -273,18 +266,20 @@ game.match.prototype = {
 
             this.checkHit();
 
-            if (this.hit_ball === true) {
+            // if the ball is not in camera
+            if (!this.ball.inCamera) {
+                
+                this.ball.body.velocity = 0;
+                this.ballThrown = false;
 
-                if (!this.ball.inCamera) {
+                if (this.hit_ball === true) {
 
-                    this.ballThrown = false;
-                    console.log(this.ball);
                     this.stadium.visible = true;
 
                     this.hit_ball = this.add.sprite(this.world.centerX - 7, this.world.centerY - 25, 'ball');
                     this.hit_ball.anchor.setTo(0.5);
                     this.hit_ball_destination = this.add.sprite(0, 0, 'ball');
-                    this.hit_ball_destination.scale.setTo(0.1);
+                    this.hit_ball_destination.scale.setTo(0.0001);
                     this.hit_ball_destination.anchor.setTo(0.5);
                     this.hit_ball_destination.immovable = true;
                     this.physics.arcade.enable([this.hit_ball, this.hit_ball_destination]);
@@ -403,18 +398,19 @@ game.match.prototype = {
 
                     }
 
+                } else {
+                    // TO DO
+                    // in case the ball is not being hit
+                    this.run_scored = 0;
+                    this.run_scored_animation();
+                    this.time.events.add(Phaser.Timer.SECOND * 3, function () {
+                        this.update_balls_left();
+                        this.new_session_miss();
+                    }, this);
+
                 }
 
-            } else {
-                // TO DO
-                // in case the ball is not being hit
-                // this.run_scored = 0;
-                // this.run_scored_animation();
-
-                // this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session, this);
-
             }
-
         }
 
         
@@ -434,14 +430,13 @@ game.match.prototype = {
 
                 this.update_score_box();
                 
-                this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session, this);
+                this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_hit, this);
 
 
             }
 
 
         }
-
 
         //
         // if (this.physics.arcade.collide(this.ball, this.leftStump)) {
@@ -506,9 +501,9 @@ game.match.prototype = {
         this.drop.x = this.randomX;
         this.drop.y = this.randomY;
 
-        this.ball.x = this.world.centerX - 50;
-        this.ball.y = this.world.centerY + 130;
-        this.ball.visible = true;
+        this.ball = this.add.sprite(this.world.centerX - 50, this.world.centerY + 130, 'ball');
+        this.ball.anchor.setTo(0.5);
+        this.physics.arcade.enable(this.ball);
         this.ballThrown = true;
 
         this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, Math.random() * (200 - 150) + 150);
@@ -521,18 +516,24 @@ game.match.prototype = {
     straight_shot: function () {
         this.straightShot.play();
         this.shot_played = 'straight';
+        this.toggle_visibility = false;
+        this.toggle_buttons_visibility();
     },
 
     // function to play off shot
     off_shot: function () {
         this.offShot.play();
         this.shot_played = 'off';
+        this.toggle_visibility = false;
+        this.toggle_buttons_visibility();
     },
 
     // function to play leg shot
     leg_shot: function () {
         this.legShot.play();
         this.shot_played = 'leg';
+        this.toggle_visibility = false;
+        this.toggle_buttons_visibility();
     },
 
     chooseRect: function () {
@@ -600,37 +601,40 @@ game.match.prototype = {
 
                 this.hit_ball_point = Math.random() * (420 - 220) + 220;
                 this.physics.arcade.moveToXY(this.ball, this.hit_ball_point, 320, this.hit_ball_velocity);
-                console.log('straight');
                 this.hit_ball_shot = this.shot_played;
                 this.shot_played = '';
                 this.hit_ball = true;
-                console.log(this.shot_played);
 
 
             } else if (this.shot_played == 'off') {
 
                 this.hit_ball_point = Math.random() * (230 - 90) + 90;
                 this.physics.arcade.moveToXY(this.ball, 0, this.hit_ball_point, this.hit_ball_velocity);
-                console.log('off');
                 this.hit_ball_shot = this.shot_played;
                 this.shot_played = '';
                 this.hit_ball = true;
-                console.log(this.shot_played);
+
 
             } else if (this.shot_played == 'leg') {
 
                 this.hit_ball_point = Math.random() * (230 - 90) + 90;
                 this.physics.arcade.moveToXY(this.ball, 640, this.hit_ball_point, this.hit_ball_velocity);
-                console.log('leg');
                 this.hit_ball_shot = this.shot_played;
                 this.shot_played = '';
                 this.hit_ball = true;
-                console.log(this.shot_played);
 
             } else {
 
                 this.ball.body.velocity = 0;
-                // TO DO
+                this.ballThrown = false;
+
+                this.run_scored = 0;
+                console.log('631');
+                this.run_scored_animation();
+                this.update_balls_left();
+                this.time.events.add(Phaser.Timer.SECOND * 3, function () {
+                        this.new_session_miss();
+                    }, this);
 
             }
 
@@ -640,7 +644,7 @@ game.match.prototype = {
 
 
     run_scored_animation: function () {
-                                    
+        console.log('641');
         if (this.run_scored == 0) {
             this.run_text_score = 'ZERO';
         } else if (this.run_scored == 1) {
@@ -677,20 +681,35 @@ game.match.prototype = {
     },
 
     
-    new_session: function () {
+    new_session_hit: function () {
 
         this.bowling_destroy();
         this.batting_destroy();
         this.scoring_destroy();
 
         this.bowl_btn.visible = true;
+        this.toggle_visibility = true;
+        this.toggle_buttons_visibility();
+        this.bat.frame = 1;
+
+    },
+
+    new_session_miss: function () {
+
+        this.bowling_destroy();
+        this.scoring_destroy();
+
+        this.bowl_btn.visible = true;
+        this.toggle_visibility = true;
+        this.toggle_buttons_visibility();        
+        this.bat.frame = 1;
 
     },
 
     bowling_destroy: function () {
     
         // from bowling
-        this.ball.visible = false;
+        this.ball.destroy();
         this.ballThrown = false;
         this.drop.body.velocity = 0;
         this.ballX = null;
@@ -727,6 +746,18 @@ game.match.prototype = {
         this.scoreboard.visible = false;
         this.run_text.visible = false;
 
+    },
+
+    toggle_buttons_visibility: function () {
+        if (this.toggle_visibility === true) {
+            this.straight_btn.visible = true;
+            this.off_btn.visible = true;
+            this.leg_btn.visible = true;
+        } else {
+            this.straight_btn.visible = false;
+            this.off_btn.visible = false;
+            this.leg_btn.visible = false;
+        }
     }
 
 
