@@ -133,8 +133,10 @@ game.match.prototype = {
         this.rightRect.endFill();
 
         // ball drop point
-        this.drop = this.add.sprite(300, 10, 'bell');
-        this.drop.scale.setTo(0.0001);
+        this.drop = this.add.sprite(300, 10, 'ball');
+        this.drop.scale.setTo(0.1);
+        this.physics.arcade.enable(this.drop);
+        // this.drop.body.immovable = true;
 
         // ******************************************************************************************************
         // wickets
@@ -174,6 +176,7 @@ game.match.prototype = {
         this.bat.body.immovable = true;
 
         // bat animations
+
         // straight shot
         this.straightShot = this.bat.animations.add('straight', [0, 1, 2, 3, 4, 5], 20);
         // off shot
@@ -195,9 +198,15 @@ game.match.prototype = {
 
 
         // enabling physics on objects
-        // this.physics.arcade.enable([this.drop, this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
-        this.physics.arcade.enable([this.drop]);
+        // this.physics.arcade.enable([this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
 
+        /**
+         * ball
+         */
+        this.ball = this.add.sprite(0, 0, 'ball');
+        this.ball.anchor.setTo(0.5);
+        this.physics.arcade.enable(this.ball);
+        this.ball.visible = false;
 
 
         // ******************************************************************************************************
@@ -231,7 +240,18 @@ game.match.prototype = {
         this.overs_left_text = this.add.text(14, 32, 'BALLS LEFT - ' + this.overs_left, this.font_style, this.score_box_group);
         this.target_runs_text = this.add.text(14, 56, 'TARGET - ' + this.target_runs, this.font_style, this.score_box_group);
 
-        
+        /**
+         * scoring animation
+         */
+        this.scoreboard = this.add.image(this.world.centerX, this.world.centerY, 'scoreboard');
+        this.scoreboard.anchor.setTo(0.5);
+        this.scoreboard.scale.setTo(2, 2);
+        this.scoreboard.visible = false;
+
+        this.run_text_score = 'ZERO';
+        this.run_text = this.add.bitmapText(this.world.centerX, this.world.centerY, 'digital', this.run_text_score, 70);
+        this.run_text.anchor.setTo(0.5);
+        this.run_text.visible = false;
 
     },
 
@@ -258,9 +278,8 @@ game.match.prototype = {
 
                 if (!this.ball.inCamera) {
 
-                    this.ball.destroy();
-                    this.ball = null;
                     this.ballThrown = false;
+                    console.log(this.ball);
                     this.stadium.visible = true;
 
                     this.hit_ball = this.add.sprite(this.world.centerX - 7, this.world.centerY - 25, 'ball');
@@ -392,11 +411,14 @@ game.match.prototype = {
                 // this.run_scored = 0;
                 // this.run_scored_animation();
 
+                // this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session, this);
+
             }
 
         }
 
-    
+        console.log(this.hit_ball);
+        console.log(typeof this.hit_ball !== 'undefined');
         // after the ball is hit the collision check will start        
         if (typeof this.hit_ball !== 'undefined') {
             // this block of code only runs when this.hit_ball variable is defined
@@ -420,7 +442,6 @@ game.match.prototype = {
 
 
         }
-
 
 
         //
@@ -449,12 +470,13 @@ game.match.prototype = {
         //     this.physics.arcade.moveToXY(this.rightBell, 320, 0, 200);
         // }
 
-    },
+    }, // end of update function
 
     render: function () {
         // cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
         cricket.debug.spriteBounds(this.bat);
-        cricket.debug.cameraInfo(this.camera, 30, 150, '#f00');
+        cricket.debug.spriteInfo(this.drop, 30, 150, '#fff');
+        // cricket.debug.cameraInfo(this.camera, 30, 150, '#f00');
         cricket.debug.text(this.time.fps || '--', 600, 20, "#f00", '22px Verdana');
     },
 
@@ -486,13 +508,12 @@ game.match.prototype = {
         this.drop.x = this.randomX;
         this.drop.y = this.randomY;
 
-        // ball is added to game
-        this.ball = this.add.sprite(this.world.centerX - 50, this.world.centerY + 130, 'ball');
-        this.ball.anchor.setTo(0.5);
+        this.ball.x = this.world.centerX - 50;
+        this.ball.y = this.world.centerY + 130;
+        this.ball.visible = true;
         this.ballThrown = true;
 
-        this.physics.arcade.enable(this.ball);
-        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, 150);
+        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, Math.random() * (200 - 150) + 150);
 
         this.bowl_btn.visible = false;
 
@@ -636,12 +657,9 @@ game.match.prototype = {
             this.run_text_score = 'SIX';
         }
         
-        this.scoreboard = this.add.image(this.world.centerX, this.world.centerY, 'scoreboard');
-        this.scoreboard.anchor.setTo(0.5);
-        this.scoreboard.scale.setTo(2, 2);
-
-        this.run_text = this.add.bitmapText(this.world.centerX, this.world.centerY, 'digital', this.run_text_score, 70);
-        this.run_text.anchor.setTo(0.5);
+        this.scoreboard.visible = true;
+        this.run_text.visible = true;
+        this.run_text.text = this.run_text_score;
 
     },
 
@@ -663,24 +681,53 @@ game.match.prototype = {
     
     new_session: function () {
 
-        this.stadium.visible = false;
-        this.scoreboard.destroy();
-        this.run_text.destroy();
-        this.hit_ball.destroy();
+        this.bowling_destroy();
+        this.batting_destroy();
+        this.scoring_destroy();
+
+        this.bowl_btn.visible = true;
 
     },
 
     bowling_destroy: function () {
     
         // from bowling
-        this.ball.destroy();
+        this.ball.visible = false;
+        this.ballThrown = false;
+        this.drop.body.velocity = 0;
+        this.ballX = null;
+        this.ballY = null;
         this.randomX = null;
         this.randomY = null;
 
         // from update and chooseRect
+        this.random_value = null;
         this.chosenRect = null;
         this.turnX = null;
         this.turnY = null;
+        this.ball_velocity = null;
+
+    },
+
+    batting_destroy: function () {
+        
+        this.hit_ball_velocity = null;
+        this.shot_played = null;
+        this.hit_ball_point = null;
+        this.hit_ball_shot = null;
+        this.hit_ball.destroy();
+        this.hit_ball_destination.destroy();
+        this.hit_ball_velocity = null;
+        this.run_scored = null;
+
+    },
+
+    scoring_destroy: function () {
+
+        this.stadium.visible = false;
+        this.run_text_score = 'ZERO';
+        this.scoreboard.visible = false;
+        this.run_text.visible = false;
 
     }
 
