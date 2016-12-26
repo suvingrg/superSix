@@ -136,7 +136,6 @@ game.match.prototype = {
         this.drop = this.add.sprite(300, 10, 'ball');
         this.drop.scale.setTo(0.1);
         this.physics.arcade.enable(this.drop);
-        // this.drop.body.immovable = true;
 
         // ******************************************************************************************************
         // wickets
@@ -284,9 +283,10 @@ game.match.prototype = {
 
                     this.hit_ball = this.add.sprite(this.world.centerX - 7, this.world.centerY - 25, 'ball');
                     this.hit_ball.anchor.setTo(0.5);
-                    this.hit_ball_destination = this.add.sprite(0, 0, 'bell');
-                    this.hit_ball_destination.scale.setTo(0.0001);
+                    this.hit_ball_destination = this.add.sprite(0, 0, 'ball');
+                    this.hit_ball_destination.scale.setTo(0.1);
                     this.hit_ball_destination.anchor.setTo(0.5);
+                    this.hit_ball_destination.immovable = true;
                     this.physics.arcade.enable([this.hit_ball, this.hit_ball_destination]);
 
                     // this.hit_ball_velocity = 610;
@@ -417,8 +417,7 @@ game.match.prototype = {
 
         }
 
-        console.log(this.hit_ball);
-        console.log(typeof this.hit_ball !== 'undefined');
+        
         // after the ball is hit the collision check will start        
         if (typeof this.hit_ball !== 'undefined') {
             // this block of code only runs when this.hit_ball variable is defined
@@ -475,7 +474,6 @@ game.match.prototype = {
     render: function () {
         // cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
         cricket.debug.spriteBounds(this.bat);
-        cricket.debug.spriteInfo(this.drop, 30, 150, '#fff');
         // cricket.debug.cameraInfo(this.camera, 30, 150, '#f00');
         cricket.debug.text(this.time.fps || '--', 600, 20, "#f00", '22px Verdana');
     },
