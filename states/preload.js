@@ -51,7 +51,8 @@ game.preload.prototype = {
         // scoreboard
         this.load.spritesheet('board', 'assets/board.png', 1004, 687, 2);
         // bat and shot animations
-        this.load.atlasJSONArray('bat', 'assets/bat.png', 'assets/bat.json', '');
+        this.load.atlasJSONArray('bat', 'assets/bat.png', 'assets/bat.json');
+        this.load.atlasJSONArray('keeper', 'assets/keeper.png', 'assets/keeper.json');
 
 
         // debugging for fps

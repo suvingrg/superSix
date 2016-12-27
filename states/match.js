@@ -8,6 +8,7 @@ game.match = function (cricket) {
         // wicket components
         wicket, leftStump, midStump, rightStump, bowl_stump,
         leftBell, rightBell, bell,
+        keeper,
 
         // ball
         ball, drop, ballThrown,
@@ -165,6 +166,12 @@ game.match.prototype = {
         //
         // this.bell = this.add.image(this.minX + 32, this.minY + 153, 'bell');
         // this.bell = this.add.image(this.minX + 45, this.minY + 153, 'bell');
+
+        /**
+         * adding keeper
+         */
+        this.keeper = this.add.sprite(this.world.centerX, this.world.centerY - 80, 'keeper', 1);
+        this.keeper.anchor.setTo(1);
 
         // ******************************************************************************************************
         // bat
@@ -543,6 +550,8 @@ game.match.prototype = {
 
         this.bowl_btn.visible = false;
 
+        this.keeper.frame = 2;
+
     },
 
     // function to play straight shot
@@ -785,10 +794,12 @@ game.match.prototype = {
             this.straight_btn.visible = true;
             this.off_btn.visible = true;
             this.leg_btn.visible = true;
+            this.keeper.frame = 2;
         } else {
             this.straight_btn.visible = false;
             this.off_btn.visible = false;
             this.leg_btn.visible = false;
+            this.keeper.frame = 1;
         }
     },
 
