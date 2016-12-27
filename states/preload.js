@@ -54,6 +54,8 @@ game.preload.prototype = {
         this.load.spritesheet('board', 'assets/board.png', 1004, 687, 2);
         // bat and shot animations
         this.load.atlasJSONArray('bat', 'assets/bat.png', 'assets/bat.json');
+        // bowler
+        this.load.atlasJSONArray('bowler', 'assets/bowler.png', 'assets/bowler.json');
         this.load.atlasJSONArray('keeper', 'assets/keeper.png', 'assets/keeper.json');
 
 

@@ -8,7 +8,7 @@ game.match = function (cricket) {
         // wicket components
         wicket, leftStump, midStump, rightStump, bowl_stump,
         leftBell, rightBell, bell,
-        keeper,
+        keeper, bowler,
 
         // ball
         ball, drop, ballThrown,
@@ -94,6 +94,13 @@ game.match.prototype = {
         this.keeper = this.add.sprite(this.world.centerX, this.world.centerY - 80, 'keeper', 0);
         this.keeper.anchor.setTo(1);
 
+        /**
+         * bowler
+         */
+        this.bowler = this.add.sprite(this.world.centerX - 100, this.world.centerY + 170, 'bowler', 0);
+        this.bowler.anchor.setTo(0.5);
+        this.bowler.scale.setTo(1.5);
+        this.bowler.animations.add('bowl', '');
 
         // ******************************************************************************************************
         // math
@@ -209,7 +216,10 @@ game.match.prototype = {
         // buttons
         // ******************************************************************************************************
 
-        this.bowl_btn = this.add.button(this.minX - 200, this.minY + 100, 'bowl_btn', this.bowling, this, 1, 0, 1, 0);
+        this.bowl_btn = this.add.button(this.minX - 200, this.minY + 100, 'bowl_btn', function () {
+            this.bowler.animations.play('bowl', 20);
+            this.time.events.add(Phaser.Timer.SECOND * 0.6, this.bowling, this);
+        }, this, 1, 0, 1, 0);
 
         this.straight_btn = this.add.button(this.minX + 250, this.minY + 100, 'straight_btn', this.straight_shot, this, 1, 0, 1, 0);
 
@@ -315,10 +325,10 @@ game.match.prototype = {
                 
                 this.ball.body.velocity = 0;
                 this.ballThrown = false;
-                this.ball_hit = true;
 
                 if (this.hit_ball === true) {
 
+                    this.ball_hit = true;
                     this.stadium.visible = true;
                     this.fielders.visible = true;
 
@@ -604,7 +614,7 @@ game.match.prototype = {
         this.drop.x = this.randomX;
         this.drop.y = this.randomY;
 
-        this.ball = this.add.sprite(this.world.centerX - 50, this.world.centerY + 130, 'ball');
+        this.ball = this.add.sprite(this.world.centerX - 70, this.world.centerY + 100, 'ball');
         this.ball.anchor.setTo(0.5);
         this.physics.arcade.enable(this.ball);
         this.ballThrown = true;
@@ -817,6 +827,9 @@ game.match.prototype = {
 
     bowling_destroy: function () {
     
+        // from create
+        this.bowler.frame = 0;
+
         // from bowling
         this.ball.destroy();
         this.ballThrown = false;
@@ -953,6 +966,5 @@ game.match.prototype = {
         this.total_runs_text.text = this.total_runs + ' - ' + this.fallen_wickets;
 
     }
-
 
 };
