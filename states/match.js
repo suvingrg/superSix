@@ -43,15 +43,21 @@ game.match = function (cricket) {
         score_box_group,
         score_box, player_text,
         total_runs, total_runs_text,
-        fallen_wickets,
+        fallen_wickets, wicket_type,
         overs_left, overs_left_text,
         target_runs, target_runs_text,
         font_style,
 
-        //buttons
+        // buttons
         toggle_visibility,
         bowl_btn, straight_btn, off_btn, leg_btn,
-        move_bat_left_btn, move_bat_right_btn;
+        move_bat_left_btn, move_bat_right_btn,
+
+        // fielders
+        fielders,
+        left_top_fielder, left_bottom_fielder,
+        center_fielder,
+        right_top_fielder, right_bottom_fielder;
 
 };
 
@@ -88,6 +94,7 @@ game.match.prototype = {
         this.keeper = this.add.sprite(this.world.centerX, this.world.centerY - 80, 'keeper', 0);
         this.keeper.anchor.setTo(1);
 
+
         // ******************************************************************************************************
         // math
         // ******************************************************************************************************
@@ -101,7 +108,7 @@ game.match.prototype = {
 
         // ball drop region - rectangle in front of the batter
         this.ball_drop_region = this.add.graphics(0, 0);
-        this.ball_drop_region.beginFill('0x000', 0.4);
+        this.ball_drop_region.beginFill(0x000000, 0.4);
         this.ball_drop_region.drawRect(this.minX, this.minY, this.maxX - this.minX, this.maxY - this.minY);
         this.ball_drop_region.endFill();
 
@@ -204,11 +211,11 @@ game.match.prototype = {
 
         this.bowl_btn = this.add.button(this.minX - 200, this.minY + 100, 'bowl_btn', this.bowling, this, 1, 0, 1, 0);
 
-        this.straight_btn = this.add.button(this.minX + 260, this.minY + 100, 'straight_btn', this.straight_shot, this, 1, 0, 1, 0);
+        this.straight_btn = this.add.button(this.minX + 250, this.minY + 100, 'straight_btn', this.straight_shot, this, 1, 0, 1, 0);
 
-        this.off_btn = this.add.button(this.minX + 200, this.minY + 45, 'off_btn', this.off_shot, this, 1, 0, 1, 0);
+        this.off_btn = this.add.button(this.minX + 190, this.minY + 45, 'off_btn', this.off_shot, this, 1, 0, 1, 0);
 
-        this.leg_btn = this.add.button(this.minX + 320, this.minY + 45, 'leg_btn', this.leg_shot, this, 1, 0, 1, 0);
+        this.leg_btn = this.add.button(this.minX + 310, this.minY + 45, 'leg_btn', this.leg_shot, this, 1, 0, 1, 0);
 
         // buttons for moving the bat left and right
         this.move_bat_left_btn = this.add.button(this.world.centerX + 150, 70, 'move_bat_btn', this.move_bat_left, this, 1, 0, 1, 0);
@@ -226,6 +233,27 @@ game.match.prototype = {
         this.stadium.anchor.setTo(0.5);
         this.stadium.scale.setTo(1.5, 1);
         this.stadium.visible = false;
+
+        /**
+         * fielders
+         */
+        this.fielders = this.add.group();
+        this.left_top_fielder = this.fielders.create(this.world.centerX - 150, this.world.centerY - 70, 'fielder');
+        this.left_bottom_fielder = this.fielders.create(this.world.centerX - 140, this.world.centerY + 40, 'fielder');
+        this.center_fielder = this.fielders.create(this.world.centerX - 10, this.world.centerY + 90, 'fielder');
+        this.right_top_fielder = this.fielders.create(this.world.centerX + 130, this.world.centerY - 40, 'fielder');
+        this.right_bottom_fielder = this.fielders.create(this.world.centerX + 100, this.world.centerY + 50, 'fielder');
+        this.fielders.visible = false;
+
+        /**
+         * hit_ball_destination
+         */
+        this.hit_ball_destination = this.add.sprite(0, 0, 'ball');
+        this.hit_ball_destination.scale.setTo(0.0001);
+        this.hit_ball_destination.anchor.setTo(0.5);
+        this.physics.arcade.enable(this.hit_ball_destination);
+        this.hit_ball_destination.body.immovable = true;
+        this.hit_ball_destination.visible = false;
 
         // score box group
         this.score_box_group = this.add.group();
@@ -253,7 +281,7 @@ game.match.prototype = {
          */
         this.scoreboard = this.add.image(this.world.centerX, this.world.centerY, 'scoreboard');
         this.scoreboard.anchor.setTo(0.5);
-        this.scoreboard.scale.setTo(2, 2);
+        this.scoreboard.scale.setTo(3, 2);
         this.scoreboard.visible = false;
 
         this.run_text_score = 'ZERO';
@@ -275,7 +303,7 @@ game.match.prototype = {
 
             this.ball_velocity = Math.random() * (270 - 170) + 170;
             this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, this.ball_velocity);
-            console.log("ball_velocity = " + this.ball_velocity);
+            // console.log("ball_velocity = " + this.ball_velocity);
         }
 
         if (this.ballThrown === true) {
@@ -291,17 +319,15 @@ game.match.prototype = {
                 if (this.hit_ball === true) {
 
                     this.stadium.visible = true;
+                    this.fielders.visible = true;
 
                     this.hit_ball = this.add.sprite(this.world.centerX - 7, this.world.centerY - 25, 'ball');
                     this.hit_ball.anchor.setTo(0.5);
-                    this.hit_ball_destination = this.add.sprite(0, 0, 'ball');
-                    this.hit_ball_destination.scale.setTo(0.0001);
-                    this.hit_ball_destination.anchor.setTo(0.5);
-                    this.hit_ball_destination.immovable = true;
-                    this.physics.arcade.enable([this.hit_ball, this.hit_ball_destination]);
+                    this.hit_ball_destination.visible = true;
+                    this.physics.arcade.enable(this.hit_ball);
 
-                    // this.hit_ball_velocity = 610;
-                    console.log('hit_ball_velocity = ' + this.hit_ball_velocity);
+                    // this.hit_ball_velocity = 550;
+                    // console.log('hit_ball_velocity = ' + this.hit_ball_velocity);
 
                     if (this.hit_ball_shot == 'straight') {
 
@@ -411,8 +437,9 @@ game.match.prototype = {
 
                         }
 
-
                     }
+
+                    console.log(this.hit_ball_destination.x, this.hit_ball_destination.y);
 
                 } else {
                     // TO DO
@@ -435,7 +462,8 @@ game.match.prototype = {
                 this.leftBell.rotation += 1;
                 this.physics.arcade.moveToXY(this.leftBell, 300, 0, 200);
 
-                this.bowled();
+                this.wicket_type = 'bowled';
+                this.out();
                 this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_miss, this);
 
             } else if (this.physics.arcade.collide(this.ball, this.midStump) || cricket.physics.arcade.collide(this.ball, this.rightStump)) {
@@ -451,7 +479,8 @@ game.match.prototype = {
                 this.rightBell.rotation += 1;
                 this.physics.arcade.moveToXY(this.rightBell, 320, 0, 200);
 
-                this.bowled();
+                this.wicket_type = 'bowled';
+                this.out();
                 this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_miss, this);
 
             }
@@ -465,6 +494,27 @@ game.match.prototype = {
             
 
             this.hit_ball.rotation -= 5;
+                
+            if (this.left_top_fielder.overlap(this.hit_ball_destination) ||
+                this.left_bottom_fielder.overlap(this.hit_ball_destination) ||
+                this.center_fielder.overlap(this.hit_ball_destination) ||
+                this.right_top_fielder.overlap(this.hit_ball_destination) ||
+                this.right_bottom_fielder.overlap(this.hit_ball_destination)) {
+
+                if (this.physics.arcade.collide(this.hit_ball, this.hit_ball_destination)) {
+
+                    this.hit_ball.body.velocity = 0;
+                    this.hit_ball.rotation = 0;
+
+                    this.wicket_type = 'catch';
+                    this.out();
+                    this.update_balls_left();
+                    
+                    this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_hit, this);
+
+                }
+
+            }
 
             if (this.physics.arcade.collide(this.hit_ball, this.hit_ball_destination)) {
 
@@ -477,7 +527,6 @@ game.match.prototype = {
                 
                 this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_hit, this);
 
-
             }
 
 
@@ -487,18 +536,9 @@ game.match.prototype = {
         /**
          * match winning and losing conditions
          */
-        // if all wickets are down
-        if (this.fallen_wickets >= 6) {
-           
+        // if all wickets are down or there are no balls left
+        if (this.fallen_wickets >= 6 || this.overs_left <= 0) {
             this.runs_check();
-
-        }
-
-        // if balls left is zero
-        if (this.overs_left <= 0) {
-
-            this.runs_check();
-
         }
 
         // total runs scored is greater than or equal to target runs
@@ -519,9 +559,14 @@ game.match.prototype = {
     }, // end of update function
 
     render: function () {
-        // cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
+        // cricket.debug.spriteInfo(this.right_top_fielder, 30, 150, '#fff');
         // cricket.debug.spriteBounds(this.bat);
         // cricket.debug.cameraInfo(this.camera, 30, 150, '#f00');
+        // cricket.debug.spriteBounds(this.left_top_fielder);
+        // cricket.debug.spriteBounds(this.left_bottom_fielder);
+        // cricket.debug.spriteBounds(this.center_fielder);
+        // cricket.debug.spriteBounds(this.right_top_fielder);
+        // cricket.debug.spriteBounds(this.right_bottom_fielder);
         cricket.debug.text(this.time.fps || '--', 600, 20, "#f00", '22px Verdana');
     },
 
@@ -743,6 +788,7 @@ game.match.prototype = {
         this.bowl_btn.visible = true;
         this.toggle_visibility = true;
         this.toggle_buttons_visibility();
+        this.wicket_type = null;
         this.bat.frame = 0;
 
     },
@@ -758,6 +804,7 @@ game.match.prototype = {
         this.toggle_buttons_visibility();        
         this.bat.frame = 0;
         this.shot_played = null;
+        this.wicket_type = null;
         this.bat.x = this.minX + 50;
         this.bat.y = this.minY - 50;
 
@@ -790,9 +837,10 @@ game.match.prototype = {
         this.hit_ball_point = null;
         this.hit_ball_shot = null;
         this.hit_ball.destroy();
-        this.hit_ball_destination.destroy();
+        this.hit_ball_destination.visible = false;
         this.hit_ball_velocity = null;
         this.run_scored = null;
+        this.fielders.visible = false;
 
     },
 
@@ -841,12 +889,11 @@ game.match.prototype = {
     },
 
     runs_check: function () {
-        console.log('796');
+        
         this.scoreboard.visible = true;
         this.run_text.visible = true;
-        console.log(this.total_runs, this.target_runs);
 
-        if (this.total_runs === (this.target_runs - 1)) {
+        if (this.total_runs == (this.target_runs - 1)) {
 
             this.run_text.text = 'DRAW';
                 
@@ -879,11 +926,16 @@ game.match.prototype = {
 
     },
 
-    bowled: function () {
+    out: function () {
         
         this.scoreboard.visible = true;
         this.run_text.visible = true;
-        this.run_text.text = 'BOWLED';
+
+        if (this.wicket_type == 'bowled') {
+            this.run_text.text = 'BOWLED';
+        } else if (this.wicket_type == 'catch') {
+            this.run_text.text = 'CATCH OUT';
+        }
 
         this.update_fallen_wickets();
 

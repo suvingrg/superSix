@@ -39,6 +39,7 @@ game.preload.prototype = {
         this.load.image('stadium', 'assets/stadium.png');
         this.load.image('scoreboard', 'assets/scoreboard.png');
         this.load.image('score_box', 'assets/score_box.png');
+        this.load.image('fielder', 'assets/fielder.png');
 
         // buttons
         this.load.spritesheet('play_btn', 'assets/play_btn.png', 167, 70, 2);
