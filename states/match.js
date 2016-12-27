@@ -28,7 +28,7 @@ game.match = function (cricket) {
         randomX, randomY, turnX, turnY,
         random_value,
         ball_velocity,
-        shot_played,
+        shot_played, ball_hit,
 
         // scoring
         stadium, hit_ball, hit_ball_velocity, hit_ball_point, hit_ball_shot, hit_ball_destination,
@@ -315,6 +315,7 @@ game.match.prototype = {
                 
                 this.ball.body.velocity = 0;
                 this.ballThrown = false;
+                this.ball_hit = true;
 
                 if (this.hit_ball === true) {
 
@@ -327,7 +328,7 @@ game.match.prototype = {
                     this.physics.arcade.enable(this.hit_ball);
 
                     // this.hit_ball_velocity = 550;
-                    // console.log('hit_ball_velocity = ' + this.hit_ball_velocity);
+                    console.log('hit_ball_velocity = ' + this.hit_ball_velocity);
 
                     if (this.hit_ball_shot == 'straight') {
 
@@ -464,6 +465,7 @@ game.match.prototype = {
 
                 this.wicket_type = 'bowled';
                 this.out();
+                this.update_balls_left();
                 this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_miss, this);
 
             } else if (this.physics.arcade.collide(this.ball, this.midStump) || cricket.physics.arcade.collide(this.ball, this.rightStump)) {
@@ -481,6 +483,7 @@ game.match.prototype = {
 
                 this.wicket_type = 'bowled';
                 this.out();
+                this.update_balls_left();
                 this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_miss, this);
 
             }
@@ -489,9 +492,9 @@ game.match.prototype = {
 
         
         // after the ball is hit the collision check will start        
-        if (typeof this.hit_ball !== 'undefined') {
-            // this block of code only runs when this.hit_ball variable is defined
-            
+        if (this.ball_hit) {
+            // this block of code will only run if the ball is hit
+            console.log('ball_hit');
 
             this.hit_ball.rotation -= 5;
                 
@@ -505,10 +508,12 @@ game.match.prototype = {
 
                     this.hit_ball.body.velocity = 0;
                     this.hit_ball.rotation = 0;
+                    this.ball_hit = false;
 
                     this.wicket_type = 'catch';
                     this.out();
                     this.update_balls_left();
+                    console.log('this.caught');
                     
                     this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_hit, this);
 
@@ -520,11 +525,10 @@ game.match.prototype = {
 
                 this.hit_ball.body.velocity = 0;
                 this.hit_ball.rotation = 0;
+                this.ball_hit = false;
 
                 this.run_scored_animation();
-
                 this.update_score_box();
-                
                 this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_hit, this);
 
             }
@@ -768,6 +772,7 @@ game.match.prototype = {
         
         this.total_runs += this.run_scored;
         this.total_runs_text.setText(this.total_runs + ' - ' + this.fallen_wickets);
+        console.log('this ran');
 
         this.update_balls_left();
 
@@ -841,6 +846,7 @@ game.match.prototype = {
         this.hit_ball_velocity = null;
         this.run_scored = null;
         this.fielders.visible = false;
+        this.ball_hit = false;
 
     },
 
