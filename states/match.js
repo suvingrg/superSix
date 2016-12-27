@@ -82,6 +82,12 @@ game.match.prototype = {
         this.pitch.anchor.setTo(0.5);
         this.pitch.scale.setTo(1, 0.9);
 
+        /**
+         * adding keeper
+         */
+        this.keeper = this.add.sprite(this.world.centerX, this.world.centerY - 80, 'keeper', 0);
+        this.keeper.anchor.setTo(1);
+
         // ******************************************************************************************************
         // math
         // ******************************************************************************************************
@@ -95,7 +101,7 @@ game.match.prototype = {
 
         // ball drop region - rectangle in front of the batter
         this.ball_drop_region = this.add.graphics(0, 0);
-        this.ball_drop_region.beginFill('0x000', 0.7);
+        this.ball_drop_region.beginFill('0x000', 0.4);
         this.ball_drop_region.drawRect(this.minX, this.minY, this.maxX - this.minX, this.maxY - this.minY);
         this.ball_drop_region.endFill();
 
@@ -107,7 +113,7 @@ game.match.prototype = {
 
         // drawing left rect
         this.leftRect = this.add.graphics(0, 0);
-        this.leftRect.beginFill(0x000000, 0.7);
+        this.leftRect.beginFill(0x000000, 0);
         this.leftRect.drawRect(this.leftRectMinX, this.leftRectMinY, this.leftRectMaxX - this.leftRectMinX, this.leftRectMaxY);
         this.leftRect.endFill();
 
@@ -119,7 +125,7 @@ game.match.prototype = {
 
         // drawing mid rect
         this.midRect = this.add.graphics(0, 0);
-        this.midRect.beginFill(0x00ff00, 0.7);
+        this.midRect.beginFill(0x00ff00, 0);
         this.midRect.drawRect(this.midRectMinX, this.midRectMinY, this.midRectMaxX - this.midRectMinX, this.midRectMaxY);
         this.midRect.endFill();
 
@@ -131,7 +137,7 @@ game.match.prototype = {
 
         // drawing right rect
         this.rightRect = this.add.graphics(0, 0);
-        this.rightRect.beginFill(0xd0f0f0, 0.7);
+        this.rightRect.beginFill(0xd0f0f0, 0);
         this.rightRect.drawRect(this.rightRectMinX, this.rightRectMinY, this.rightRectMaxX - this.rightRectMinX, this.rightRectMaxY);
         this.rightRect.endFill();
 
@@ -144,35 +150,35 @@ game.match.prototype = {
         // wickets
         // ******************************************************************************************************
 
-        this.leftStump = this.add.sprite(this.minX + 37, this.minY - 02, 'stump');
-        this.leftStump.anchor.setTo(0.5);
+        this.leftStump = this.add.sprite(this.minX + 36, this.minY - 35, 'stump');
+        this.leftStump.anchor.setTo(1);
+        
+        this.midStump = this.add.sprite(this.minX + 49, this.minY - 35, 'stump');
+        this.midStump.anchor.setTo(1);
+        
+        this.rightStump = this.add.sprite(this.minX + 62, this.minY - 35, 'stump');
+        this.rightStump.anchor.setTo(1);
+        
+        this.leftBell = this.add.sprite(this.minX + 40, this.minY - 85, 'bell');
+        this.leftBell.anchor.setTo(0.5);
+        this.leftBell.scale.setTo(1.2, 1);
+        
+        this.rightBell = this.add.sprite(this.minX + 53, this.minY - 85, 'bell');
+        this.rightBell.anchor.setTo(0.5);
+        this.rightBell.scale.setTo(1.2, 1);
 
+        // enabling physics on objects
+        this.physics.arcade.enable([this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
+        this.leftStump.body.immovable = true;
+        this.midStump.body.immovable = true;
+        this.rightStump.body.immovable = true;
         
-        this.midStump = this.add.sprite(this.minX + 47, this.minY - 02, 'stump');
-        this.midStump.anchor.setTo(0.5);
+        this.stump = this.add.image(this.minX + 33, this.minY + 165, 'stump');
+        this.stump = this.add.image(this.minX + 46, this.minY + 165, 'stump');
+        this.stump = this.add.image(this.minX + 59, this.minY + 165, 'stump');
         
-        this.rightStump = this.add.sprite(this.minX + 57, this.minY - 02, 'stump');
-        this.rightStump.anchor.setTo(0.5);
-        
-        this.leftBell = this.add.sprite(this.minX + 39, this.minY - 55, 'bell');
-        this.leftBell.anchor.setTo(0.5, 0.5);
-        
-        this.rightBell = this.add.sprite(this.minX + 50, this.minY - 55, 'bell');
-        this.rightBell.anchor.setTo(0.5, 0.5);
-        
-        
-        this.stump = this.add.image(this.minX + 30, this.minY + 155, 'stump');
-        this.stump = this.add.image(this.minX + 42, this.minY + 155, 'stump');
-        this.stump = this.add.image(this.minX + 54, this.minY + 155, 'stump');
-        
-        this.bell = this.add.image(this.minX + 32, this.minY + 153, 'bell');
-        this.bell = this.add.image(this.minX + 45, this.minY + 153, 'bell');
-
-        /**
-         * adding keeper
-         */
-        this.keeper = this.add.sprite(this.world.centerX, this.world.centerY - 80, 'keeper', 0);
-        this.keeper.anchor.setTo(1);
+        this.bell = this.add.image(this.minX + 37, this.minY + 164, 'bell');
+        this.bell = this.add.image(this.minX + 50, this.minY + 164, 'bell');
 
         // ******************************************************************************************************
         // bat
@@ -209,8 +215,6 @@ game.match.prototype = {
 
         this.move_bat_right_btn = this.add.button(this.world.centerX + 250, 70, 'move_bat_btn', this.move_bat_right, this, 3, 2, 3, 2);
 
-        // enabling physics on objects
-        this.physics.arcade.enable([this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
 
 
         // ******************************************************************************************************
@@ -422,7 +426,36 @@ game.match.prototype = {
 
                 }
 
+            } else if (this.physics.arcade.collide(this.ball, this.leftStump)) {
+                
+                this.ballThrown = false;
+                this.ball.rotation = 0;
+                this.ball.body.velocity = 0;
+                this.leftStump.rotation = -0.1;
+                this.leftBell.rotation += 1;
+                this.physics.arcade.moveToXY(this.leftBell, 300, 0, 200);
+
+                this.bowled();
+                this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_miss, this);
+
+            } else if (this.physics.arcade.collide(this.ball, this.midStump) || cricket.physics.arcade.collide(this.ball, this.rightStump)) {
+                
+                this.ballThrown = false;
+                this.ball.rotation = 0;
+                this.ball.body.velocity = 0;
+                this.leftStump.rotation = -0.1;
+                this.midStump.rotation = -0.1;
+                this.rightStump.rotation = +0.1;
+                this.leftBell.rotation += 1;
+                this.physics.arcade.moveToXY(this.leftBell, 300, 0, 200);
+                this.rightBell.rotation += 1;
+                this.physics.arcade.moveToXY(this.rightBell, 320, 0, 200);
+
+                this.bowled();
+                this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_miss, this);
+
             }
+
         }
 
         
@@ -483,43 +516,19 @@ game.match.prototype = {
         }
 
 
-        
-        if (this.physics.arcade.collide(this.ball, this.leftStump)) {
-            this.ball.rotation = 0;
-            this.ball.body.velocity = 0;
-            this.leftStump.body.velocity = 0;
-            this.midStump.body.velocity = 0;
-            this.rightStump.body.velocity = 0;
-            this.leftStump.rotation = -0.2;
-        } else if (this.physics.arcade.collide(this.ball, this.midStump) || cricket.physics.arcade.collide(this.ball, this.rightStump)) {
-            this.ball.rotation = 0;
-            this.ball.body.velocity = 0;
-            this.leftStump.body.velocity = 0;
-            this.midStump.body.velocity = 0;
-            this.rightStump.body.velocity = 0;
-            this.midStump.rotation = -0.1;
-            this.rightStump.rotation = +0.2;
-        }
-        
-        if (this.physics.arcade.collide(this.leftStump, this.leftBell) || this.physics.arcade.collide(this.midStump, this.leftBell)) {
-            this.leftBell.rotation = 1;
-            this.physics.arcade.moveToXY(this.leftBell, 300, 0, 200);
-        } else if (this.physics.arcade.collide(this.midStump, this.rightBell) || this.physics.arcade.collide(this.rightStump, this.rightBell)) {
-            this.rightBell.rotation = 1;
-            this.physics.arcade.moveToXY(this.rightBell, 320, 0, 200);
-        }
-
     }, // end of update function
 
     render: function () {
         // cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
-        cricket.debug.spriteBounds(this.bat);
+        // cricket.debug.spriteBounds(this.bat);
         // cricket.debug.cameraInfo(this.camera, 30, 150, '#f00');
         cricket.debug.text(this.time.fps || '--', 600, 20, "#f00", '22px Verdana');
     },
 
 
-    // custom functions
+    /**
+     * custom functions
+     */
 
     //
     setBallPositionX: function () {
@@ -555,7 +564,7 @@ game.match.prototype = {
 
         this.bowl_btn.visible = false;
 
-        this.keeper.frame = 0;
+        this.keeper.frame = 1;
 
     },
 
@@ -688,7 +697,6 @@ game.match.prototype = {
         }
     },
 
-
     run_scored_animation: function () {
 
         if (this.run_scored == 0) {
@@ -743,11 +751,13 @@ game.match.prototype = {
 
         this.bowling_destroy();
         this.scoring_destroy();
+        this.wickets_destroy();
 
         this.bowl_btn.visible = true;
         this.toggle_visibility = true;
         this.toggle_buttons_visibility();        
         this.bat.frame = 0;
+        this.shot_played = null;
         this.bat.x = this.minX + 50;
         this.bat.y = this.minY - 50;
 
@@ -795,6 +805,22 @@ game.match.prototype = {
 
     },
 
+    wickets_destroy: function () {
+
+        this.leftStump.rotation = 0;
+        this.midStump.rotation = 0;
+        this.rightStump.rotation = 0;
+        this.leftBell.rotation = 0;
+        this.leftBell.body.velocity = 0;
+        this.leftBell.x = this.minX + 40;
+        this.leftBell.y = this.minY - 85;
+        this.rightBell.rotation = 0;
+        this.rightBell.body.velocity = 0;
+        this.rightBell.x = this.minX + 53;
+        this.rightBell.y = this.minY - 85;
+
+    },
+
     toggle_buttons_visibility: function () {
         if (this.toggle_visibility === true) {
             this.straight_btn.visible = true;
@@ -811,6 +837,7 @@ game.match.prototype = {
             this.move_bat_right_btn.visible = false;
             this.keeper.frame = 1;
         }
+    
     },
 
     runs_check: function () {
@@ -849,6 +876,23 @@ game.match.prototype = {
         if (this.bat.x < 380) {
             this.bat.right += 10;
         }
+
+    },
+
+    bowled: function () {
+        
+        this.scoreboard.visible = true;
+        this.run_text.visible = true;
+        this.run_text.text = 'BOWLED';
+
+        this.update_fallen_wickets();
+
+    },
+
+    update_fallen_wickets: function () {
+
+        this.fallen_wickets += 1;
+        this.total_runs_text.text = this.total_runs + ' - ' + this.fallen_wickets;
 
     }
 
