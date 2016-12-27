@@ -46,6 +46,7 @@ game.preload.prototype = {
         this.load.spritesheet('straight_btn', 'assets/straight_btn.png', 50, 50, 2);
         this.load.spritesheet('off_btn', 'assets/off_btn.png', 50, 50, 2);
         this.load.spritesheet('leg_btn', 'assets/leg_btn.png', 50, 50, 2);
+        this.load.spritesheet('move_bat_btn', 'assets/move_bat_btn.png', 50, 50, 4);
 
         // animations
         // scoreboard

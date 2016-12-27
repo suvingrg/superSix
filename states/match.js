@@ -50,7 +50,8 @@ game.match = function (cricket) {
 
         //buttons
         toggle_visibility,
-        bowl_btn, straight_btn, off_btn, leg_btn;
+        bowl_btn, straight_btn, off_btn, leg_btn,
+        move_bat_left_btn, move_bat_right_btn;
 
 };
 
@@ -170,14 +171,14 @@ game.match.prototype = {
         /**
          * adding keeper
          */
-        this.keeper = this.add.sprite(this.world.centerX, this.world.centerY - 80, 'keeper', 1);
+        this.keeper = this.add.sprite(this.world.centerX, this.world.centerY - 80, 'keeper', 0);
         this.keeper.anchor.setTo(1);
 
         // ******************************************************************************************************
         // bat
         // ******************************************************************************************************
 
-        this.bat = this.add.sprite(this.minX + 50, this.minY - 50, 'bat', 1);
+        this.bat = this.add.sprite(this.minX + 50, this.minY - 50, 'bat', 0);
         this.bat.anchor.setTo(0.5);
         this.physics.arcade.enable(this.bat);
         this.bat.body.immovable = true;
@@ -203,6 +204,10 @@ game.match.prototype = {
 
         this.leg_btn = this.add.button(this.minX + 320, this.minY + 45, 'leg_btn', this.leg_shot, this, 1, 0, 1, 0);
 
+        // buttons for moving the bat left and right
+        this.move_bat_left_btn = this.add.button(this.world.centerX + 150, 70, 'move_bat_btn', this.move_bat_left, this, 1, 0, 1, 0);
+
+        this.move_bat_right_btn = this.add.button(this.world.centerX + 250, 70, 'move_bat_btn', this.move_bat_right, this, 3, 2, 3, 2);
 
         // enabling physics on objects
         // this.physics.arcade.enable([this.leftStump, this.midStump, this.rightStump, this.leftBell, this.rightBell]);
@@ -507,7 +512,7 @@ game.match.prototype = {
     }, // end of update function
 
     render: function () {
-        // cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
+        cricket.debug.spriteInfo(this.bat, 30, 30, '#fff');
         cricket.debug.spriteBounds(this.bat);
         // cricket.debug.cameraInfo(this.camera, 30, 150, '#f00');
         cricket.debug.text(this.time.fps || '--', 600, 20, "#f00", '22px Verdana');
@@ -550,7 +555,7 @@ game.match.prototype = {
 
         this.bowl_btn.visible = false;
 
-        this.keeper.frame = 2;
+        this.keeper.frame = 0;
 
     },
 
@@ -720,7 +725,6 @@ game.match.prototype = {
         this.overs_left -= 1;
         this.overs_left_text.setText('BALLS LEFT - ' + this.overs_left);  
     },
-
     
     new_session_hit: function () {
 
@@ -731,7 +735,7 @@ game.match.prototype = {
         this.bowl_btn.visible = true;
         this.toggle_visibility = true;
         this.toggle_buttons_visibility();
-        this.bat.frame = 1;
+        this.bat.frame = 0;
 
     },
 
@@ -743,7 +747,9 @@ game.match.prototype = {
         this.bowl_btn.visible = true;
         this.toggle_visibility = true;
         this.toggle_buttons_visibility();        
-        this.bat.frame = 1;
+        this.bat.frame = 0;
+        this.bat.x = this.minX + 50;
+        this.bat.y = this.minY - 50;
 
     },
 
@@ -794,11 +800,15 @@ game.match.prototype = {
             this.straight_btn.visible = true;
             this.off_btn.visible = true;
             this.leg_btn.visible = true;
-            this.keeper.frame = 2;
+            this.move_bat_left_btn.visible = true;
+            this.move_bat_right_btn.visible = true;
+            this.keeper.frame = 0;
         } else {
             this.straight_btn.visible = false;
             this.off_btn.visible = false;
             this.leg_btn.visible = false;
+            this.move_bat_left_btn.visible = false;
+            this.move_bat_right_btn.visible = false;
             this.keeper.frame = 1;
         }
     },
@@ -823,6 +833,22 @@ game.match.prototype = {
         this.time.events.add(Phaser.Timer.SECOND * 3, function () {
             this.state.start('menu');
         }, this);
+
+    },
+
+    move_bat_left: function () {
+        
+        if (this.bat.x > 260) {
+            this.bat.x -= 10;
+        }
+
+    },
+
+    move_bat_right: function () {
+        
+        if (this.bat.x < 380) {
+            this.bat.right += 10;
+        }
 
     }
 
