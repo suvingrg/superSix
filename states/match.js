@@ -29,6 +29,7 @@ game.match = function (cricket) {
         random_value,
         ball_velocity,
         shot_played, ball_hit,
+        min_ball_velocity, max_ball_velocity,
 
         // scoring
         stadium, hit_ball, hit_ball_velocity, hit_ball_point, hit_ball_shot, hit_ball_destination,
@@ -47,6 +48,7 @@ game.match = function (cricket) {
         overs_left, overs_left_text,
         target_runs, target_runs_text,
         font_style,
+        min_target_runs, max_target_runs,
 
         // buttons
         toggle_visibility,
@@ -68,7 +70,29 @@ game.match.prototype = {
 
         // setting world bounds so that we can move the camera
         this.world.setBounds(0, 0, 640, 320);
-        
+        console.log(game.difficulty);
+        if (game.difficulty === 'easy') {
+            console.log(game.difficulty);
+            this.min_ball_velocity = 150;
+            this.max_ball_velocity = 180;
+            this.min_target_runs = 80;
+            this.max_target_runs = 100;
+
+        } else if (game.difficulty === 'medium') {
+            console.log(game.difficulty);
+            this.min_ball_velocity = 180;
+            this.max_ball_velocity = 210;
+            this.min_target_runs = 100;
+            this.max_target_runs = 120;
+
+        } else if (game.difficulty === 'hard') {
+            console.log(game.difficulty);
+            this.min_ball_velocity = 210;
+            this.max_ball_velocity = 240;
+            this.min_target_runs = 120;
+            this.max_target_runs = 150;
+
+        }
 
         // ******************************************************************************************************
         // adding objects
@@ -274,7 +298,7 @@ game.match.prototype = {
         this.score_box_group.add(this.score_box);
 
         // intializing the random target_runs 
-        this.target_runs = Math.floor(Math.random() * (150 - 100 + 1)) + 100;
+        this.target_runs = Math.floor(Math.random() * (this.max_target_runs - this.min_target_runs)) + this.min_target_runs;
         this.total_runs = 0;
         this.fallen_wickets = 0;
         this.overs_left = 36;
@@ -311,7 +335,7 @@ game.match.prototype = {
             this.turnX = this.getRandomX();
             this.turnY = this.getRandomY();
 
-            this.ball_velocity = Math.random() * (270 - 170) + 170;
+            this.ball_velocity = Math.random() * (this.max_ball_velocity - this.min_ball_velocity) + this.min_ball_velocity;
             this.physics.arcade.moveToXY(this.ball, this.turnX, this.turnY, this.ball_velocity);
             // console.log("ball_velocity = " + this.ball_velocity);
         }
@@ -619,7 +643,7 @@ game.match.prototype = {
         this.physics.arcade.enable(this.ball);
         this.ballThrown = true;
 
-        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, Math.random() * (200 - 150) + 150);
+        this.physics.arcade.moveToXY(this.ball, this.randomX, this.randomY, Math.random() * (this.max_ball_velocity - this.min_ball_velocity) + this.min_ball_velocity);
 
         this.bowl_btn.visible = false;
 
@@ -687,23 +711,23 @@ game.match.prototype = {
 
         this.ball.rotation -= 1;
 
-        if (this.ball_velocity >= 170 && this.ball_velocity < 190) {
+        if (this.ball_velocity >= 150 && this.ball_velocity < 170) {
 
             this.hit_ball_velocity = Math.random() * (540 - 500) + 500;
 
-        } else if (this.ball_velocity >= 190 && this.ball_velocity < 220) {
+        } else if (this.ball_velocity >= 170 && this.ball_velocity < 190) {
 
             this.hit_ball_velocity = Math.random() * (580 - 540) + 540;
 
-        } else if (this.ball_velocity >= 220 && this.ball_velocity < 230) {
+        } else if (this.ball_velocity >= 190 && this.ball_velocity < 200) {
 
             this.hit_ball_velocity = Math.random() * (620 - 580) + 580;
 
-        } else if (this.ball_velocity >= 230 && this.ball_velocity < 260) {
+        } else if (this.ball_velocity >= 200 && this.ball_velocity < 220) {
 
             this.hit_ball_velocity = Math.random() * (660 - 620) + 620;
 
-        } else if (this.ball_velocity >= 260 && this.ball_velocity < 270) {
+        } else if (this.ball_velocity >= 220 && this.ball_velocity < 240) {
 
             this.hit_ball_velocity = Math.random() * (700 - 660) + 660;
 

@@ -1,6 +1,6 @@
 
 // declaring the
-var game = {};
+var game = {difficulty: 'none'};
 
 // boot state
 game.boot = function (cricket) {};

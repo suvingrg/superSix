@@ -43,6 +43,7 @@ game.preload.prototype = {
 
         // buttons
         this.load.spritesheet('play_btn', 'assets/play_btn.png', 167, 70, 2);
+        this.load.spritesheet('difficulty_btn', 'assets/difficulty_btn.png', 100, 50, 6);
         this.load.spritesheet('bowl_btn', 'assets/bowl.png', 50, 50, 2);
         this.load.spritesheet('straight_btn', 'assets/straight_btn.png', 50, 50, 2);
         this.load.spritesheet('off_btn', 'assets/off_btn.png', 50, 50, 2);
