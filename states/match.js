@@ -234,7 +234,7 @@ game.match.prototype = {
         // off shot
         this.offShot = this.bat.animations.add('off', [0, 1, 2, 6, 7, 8, 9, 10], 20);
         // leg shot
-        this.legShot = this.bat.animations.add('leg', [0, 1, 2, 11, 12, 13, 14, 15, 16, 17, 18], 25);
+        this.legShot = this.bat.animations.add('leg', [0, 1, 2, 11, 12, 13, 14, 15, 16, 17], 25);
 
         // ******************************************************************************************************
         // buttons
@@ -502,7 +502,7 @@ game.match.prototype = {
                 this.update_balls_left();
                 this.time.events.add(Phaser.Timer.SECOND * 3, this.new_session_miss, this);
 
-            } else if (this.physics.arcade.collide(this.ball, this.midStump) || cricket.physics.arcade.collide(this.ball, this.rightStump)) {
+            } else if (this.physics.arcade.collide(this.ball, this.midStump) || this.physics.arcade.collide(this.ball, this.rightStump)) {
                 
                 this.ballThrown = false;
                 this.ball.rotation = 0;
